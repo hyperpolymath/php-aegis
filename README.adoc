@@ -1,0 +1,35 @@
+= php-aegis
+
+PHP security and hardening toolkit.
+
+== Overview
+
+A collection of PHP security tools and libraries for:
+
+* Input validation and sanitization
+* XSS and SQL injection prevention
+* Security headers management
+* Authentication helpers
+
+== Installation
+
+[source,bash]
+----
+composer require hyperpolymath/php-aegis
+----
+
+== Usage
+
+[source,php]
+----
+<?php
+use PhpAegis\Validator;
+use PhpAegis\Sanitizer;
+
+$validator = new Validator();
+$sanitizer = new Sanitizer();
+----
+
+== License
+
+MIT License - See LICENSE for details.

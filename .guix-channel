@@ -1,0 +1,4 @@
+(channel
+  (version 0)
+  (url "https://github.com/hyperpolymath/php-aegis")
+  (branch "main"))

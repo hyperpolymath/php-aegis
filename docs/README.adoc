@@ -1,0 +1,9 @@
+= Documentation
+
+Additional documentation for php-aegis.
+
+== Security Best Practices
+
+* Always validate user input
+* Use prepared statements for SQL queries
+* Implement proper Content Security Policy headers
