@@ -1,10 +1,20 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
+type: software
+title: "php-aegis"
+abstract: "PHP security and hardening toolkit - input validation, sanitization, and XSS prevention"
 authors:
   - family-names: "Jewell"
     given-names: "Jonathan D.A."
-title: "php-aegis"
+    alias: "hyperpolymath"
 version: "0.1.0"
 date-released: 2025-12-12
-url: "https://github.com/hyperpolymath/php-aegis"
 license: MIT
+repository-code: "https://github.com/hyperpolymath/php-aegis"
+url: "https://github.com/hyperpolymath/php-aegis"
+keywords:
+  - php
+  - security
+  - validation
+  - sanitization
+  - xss-prevention

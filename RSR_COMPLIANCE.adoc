@@ -1,6 +1,7 @@
 = RSR Compliance
+:toc:
 
-This repository follows the Rhodium Standard Repository (RSR) guidelines.
+This repository follows the https://github.com/hyperpolymath/rhodium-standard-repositories[Rhodium Standard Repository (RSR)] guidelines.
 
 == Compliance Status
 
@@ -8,16 +9,78 @@ This repository follows the Rhodium Standard Repository (RSR) guidelines.
 |===
 |Requirement |Status |Notes
 
-|README.adoc |✓ |Project documentation
-|LICENSE.txt |✓ |MIT License
-|CODE_OF_CONDUCT.md |✓ |Contributor Covenant
-|SECURITY.md |✓ |Security policy
-|CONTRIBUTING.md |✓ |Contribution guidelines
-|.editorconfig |✓ |Editor configuration
-|.gitignore |✓ |Git ignore rules
-|STATE.scm |✓ |Project state
+|README.adoc
+|✓
+|Project documentation with API reference
+
+|LICENSE.txt
+|✓
+|MIT License
+
+|CODE_OF_CONDUCT.md
+|✓
+|Contributor Covenant 2.1 (GitHub format)
+
+|SECURITY.md
+|✓
+|Security policy (GitHub format)
+
+|CONTRIBUTING.md
+|✓
+|Contribution guidelines (GitHub format)
+
+|.editorconfig
+|✓
+|Editor configuration
+
+|.gitignore
+|✓
+|Git ignore rules
+
+|.guix-channel
+|✓
+|GNU Guix channel definition
+
+|STATE.scm
+|✓
+|Project state (Scheme format)
+
+|CITATION.cff
+|✓
+|Citation metadata
+
+|docs/
+|✓
+|Extended security documentation
+
+|justfile
+|✓
+|Task runner commands
+
 |===
 
-== Language Note
+== Language Tier
 
-PHP is permitted for security-specific tools under RSR exception.
+**Tier Exception: PHP**
+
+PHP is permitted under RSR for security-specific tooling. This project provides security utilities (input validation, sanitization, XSS prevention) that benefit the PHP ecosystem.
+
+== File Format Notes
+
+=== Platform-Required Formats
+
+These files use Markdown (`.md`) because GitHub/GitLab automation specifically looks for them:
+
+* `CODE_OF_CONDUCT.md` - GitHub Community Standards detection
+* `SECURITY.md` - GitHub Security tab integration
+* `CONTRIBUTING.md` - GitHub contribution guidelines
+* `FUNDING.yml` - GitHub Sponsors integration (if present)
+
+=== RSR Formats
+
+These files use RSR-preferred formats:
+
+* `README.adoc` - AsciiDoc for rich documentation
+* `LICENSE.txt` - Plain text for universal compatibility
+* `STATE.scm` - Scheme for machine-readable project state
+* `CITATION.cff` - Citation File Format standard
