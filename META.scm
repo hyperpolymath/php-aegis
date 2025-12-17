@@ -10,7 +10,7 @@
      (title . "RSR Compliance")
      (status . "accepted")
      (date . "2025-12-15")
-     (context . "image:https://img.shields.io/badge/PHP-8.1+-blue.svg[PHP 8.1+]")
+     (context . "PHP security library requiring standardized repository structure and CI/CD practices")
      (decision . "Follow Rhodium Standard Repository guidelines")
      (consequences . ("RSR Gold target" "SHA-pinned actions" "SPDX headers" "Multi-platform CI")))))
 

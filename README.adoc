@@ -240,9 +240,9 @@ MIT License - See link:LICENSE.txt[LICENSE.txt] for details.
 
 == Contributing
 
-Contributions welcome! Please read link:CONTRIBUTING.adoc[CONTRIBUTING.adoc] first.
+Contributions welcome! Please read link:CONTRIBUTING.md[CONTRIBUTING.md] first.
 
-For security vulnerabilities, see link:SECURITY.adoc[SECURITY.adoc].
+For security vulnerabilities, see link:SECURITY.md[SECURITY.md].
 
 == RSR Compliance
 
