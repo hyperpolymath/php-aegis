@@ -6,7 +6,7 @@
   (version "1.0.0")
   (name "php-aegis")
   (type "project")
-  (purpose "image:https://img.shields.io/badge/PHP-8.1+-blue.svg[PHP 8.1+]")
+  (purpose "PHP security and hardening toolkit providing input validation, sanitization, and XSS prevention")
 
   (position-in-ecosystem
     "Part of hyperpolymath ecosystem. Follows RSR guidelines.")
@@ -16,5 +16,5 @@
              (url "https://github.com/hyperpolymath/rhodium-standard-repositories")
              (relationship "standard")))
 
-  (what-this-is "image:https://img.shields.io/badge/PHP-8.1+-blue.svg[PHP 8.1+]")
-  (what-this-is-not "- NOT exempt from RSR compliance"))
+  (what-this-is "A security-focused PHP library for input validation and output sanitization")
+  (what-this-is-not "Not a full framework, authentication system, or ORM. PHP exception under RSR for security tooling."))

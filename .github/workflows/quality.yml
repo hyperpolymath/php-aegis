@@ -28,7 +28,7 @@ jobs:
       - name: Check TODO/FIXME
         run: |
           echo "=== TODOs ==="
-          grep -rn "TODO\|FIXME\|HACK\|XXX" --include="*.rs" --include="*.res" --include="*.py" --include="*.ex" . | head -20 || echo "None found"
+          grep -rn "TODO\|FIXME\|HACK\|XXX" --include="*.rs" --include="*.res" --include="*.py" --include="*.ex" --include="*.php" . | grep -v 'vendor/' | head -20 || echo "None found"
 
       - name: Check for large files
         run: |

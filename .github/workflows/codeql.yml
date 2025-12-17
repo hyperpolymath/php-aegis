@@ -23,6 +23,8 @@ jobs:
         include:
           - language: actions
             build-mode: none
+          - language: javascript-typescript
+            build-mode: none
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -40,3 +42,55 @@ jobs:
       - name: Perform Analysis
         uses: github/codeql-action/analyze@662472033e021d55d94146f66f6058822b0b39fd # v3.28.1
         continue-on-error: true
+
+  # PHP-specific security analysis (CodeQL doesn't support PHP natively)
+  php-security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: PHPStan Security Analysis
+        run: |
+          vendor/bin/phpstan analyse src --level=max --error-format=github || true
+
+      - name: PHP Security Audit
+        run: |
+          # Check for dangerous functions in src/
+          echo "=== Checking for dangerous PHP functions ==="
+          DANGEROUS=$(grep -rE '\b(eval|create_function|assert|preg_replace.*\/e|call_user_func|call_user_func_array)\s*\(' --include="*.php" src/ 2>/dev/null || true)
+          if [ -n "$DANGEROUS" ]; then
+            echo "::error::Dangerous PHP functions detected in source code"
+            echo "$DANGEROUS"
+            exit 1
+          fi
+
+          # Check for command injection vectors
+          echo "=== Checking for command injection ==="
+          CMD_INJECT=$(grep -rE '\b(exec|system|passthru|shell_exec|popen|proc_open|pcntl_exec)\s*\(' --include="*.php" src/ 2>/dev/null || true)
+          if [ -n "$CMD_INJECT" ]; then
+            echo "::error::Command execution functions detected - review for injection"
+            echo "$CMD_INJECT"
+            exit 1
+          fi
+
+          # Check for unserialize without allowed_classes
+          echo "=== Checking for unsafe unserialize ==="
+          UNSERIALIZE=$(grep -rE 'unserialize\s*\([^)]*\)' --include="*.php" src/ 2>/dev/null | grep -v 'allowed_classes' || true)
+          if [ -n "$UNSERIALIZE" ]; then
+            echo "::warning::Unserialize without allowed_classes restriction detected"
+            echo "$UNSERIALIZE"
+          fi
+
+          echo "✅ PHP security audit passed"
