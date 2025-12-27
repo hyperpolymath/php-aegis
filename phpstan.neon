@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: MIT OR AGPL-3.0-or-later
+# PHPStan Configuration - Maximum Strictness
+
+parameters:
+    # Maximum analysis level (strictest)
+    level: 9
+
+    # Paths to analyze
+    paths:
+        - src
+
+    # Paths to exclude
+    excludePaths:
+        - vendor
+
+    # Treat phpdoc types as native
+    treatPhpDocTypesAsCertain: false
+
+    # Report unmatched ignored errors
+    reportUnmatchedIgnoredErrors: true
+
+    # Check missing typehints
+    checkMissingIterableValueType: true
+    checkGenericClassInNonGenericObjectType: true
+
+    # Check for unused code
+    checkAlwaysTrueCheckTypeFunctionCall: true
+    checkAlwaysTrueInstanceof: true
+    checkAlwaysTrueStrictComparison: true
+
+    # Pollute scope with loop variables
+    polluteScopeWithLoopInitialAssignments: false
+    polluteScopeWithAlwaysIterableForeach: false
+
+    # Report partial union types
+    reportMaybesInMethodSignatures: true
+    reportMaybesInPropertyPhpDocTypes: true
+
+    # Check dynamic properties
+    checkDynamicProperties: true
+
+    # Check implicit mixed
+    checkImplicitMixed: true
+
+    # Check benevolent union types
+    checkBenevolentUnionTypes: true
+
+    # Bleeding edge features (for strictest checks)
+    # bleedingEdge: true
+
+    # Memory limit
+    memoryLimit: 256M
+
+    # Parallel processing
+    parallel:
+        maximumNumberOfProcesses: 4
+
+    # Type coverage
+    typeAliases:
+        # Add type aliases here if needed
