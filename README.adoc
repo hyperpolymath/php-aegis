@@ -16,8 +16,10 @@ php-aegis provides a collection of security-focused utilities for PHP applicatio
 
 === Key Features
 
-* **Input Validation** - Strict validation for emails, URLs, and common data formats
-* **XSS Prevention** - HTML sanitization with proper encoding
+* **Input Validation** - Strict validation for emails, URLs, IPs, UUIDs, and more
+* **Context-Aware Sanitization** - HTML, JS, CSS, URL, and JSON output escaping
+* **Security Headers** - Easy CSP, HSTS, X-Frame-Options, and more
+* **RDF/Turtle Escaping** - Unique W3C-compliant semantic web security (no other PHP lib does this)
 * **Type Safety** - Full `strict_types` enforcement throughout
 * **Modern PHP** - Requires PHP 8.1+ for latest security features
 * **Zero Dependencies** - Core library has no external dependencies
@@ -58,90 +60,169 @@ declare(strict_types=1);
 
 use PhpAegis\Validator;
 use PhpAegis\Sanitizer;
+use PhpAegis\Headers;
 
-$validator = new Validator();
-$sanitizer = new Sanitizer();
+// Apply security headers (call before any output)
+Headers::secure();
 
 // Validate user input
 $email = $_POST['email'] ?? '';
-if (!$validator->email($email)) {
+if (!Validator::email($email)) {
     throw new InvalidArgumentException('Invalid email address');
 }
 
 // Sanitize for HTML output
 $userContent = $_POST['comment'] ?? '';
-$safeHtml = $sanitizer->html($userContent);
+$safeHtml = Sanitizer::html($userContent);
 echo "<p>{$safeHtml}</p>";
+----
+
+=== Semantic Web (RDF/Turtle)
+
+[source,php]
+----
+<?php
+
+use PhpAegis\TurtleEscaper;
+
+// Safe Turtle string literal
+$label = TurtleEscaper::string($userInput);
+echo '"' . $label . '"@en';
+
+// Safe IRI
+$uri = TurtleEscaper::iri($userProvidedUri);
+echo '<' . $uri . '>';
+
+// Complete triple
+echo TurtleEscaper::triple(
+    'https://example.org/resource/1',
+    'http://www.w3.org/2000/01/rdf-schema#label',
+    $userLabel,
+    'en'
+);
 ----
 
 == API Reference
 
 === Validator
 
-The `Validator` class provides strict input validation methods.
+The `Validator` class provides strict input validation methods (all static).
 
-==== `email(string $email): bool`
-
-Validates email addresses using PHP's `FILTER_VALIDATE_EMAIL`.
+==== Core Validators
 
 [source,php]
 ----
-$validator = new Validator();
-
-$validator->email('user@example.com');  // true
-$validator->email('invalid');           // false
-$validator->email('');                  // false
+Validator::email('user@example.com');     // true
+Validator::url('https://example.com');    // true
+Validator::httpsUrl('http://insecure');   // false (requires HTTPS)
 ----
 
-==== `url(string $url): bool`
-
-Validates URLs using PHP's `FILTER_VALIDATE_URL`.
+==== Network Validators
 
 [source,php]
 ----
-$validator = new Validator();
+Validator::ip('192.168.1.1');             // true (v4 or v6)
+Validator::ipv4('192.168.1.1');           // true
+Validator::ipv6('::1');                   // true
+----
 
-$validator->url('https://example.com');     // true
-$validator->url('ftp://files.example.com'); // true
-$validator->url('not-a-url');               // false
+==== Format Validators
+
+[source,php]
+----
+Validator::uuid('550e8400-e29b-41d4-a716-446655440000');  // true
+Validator::slug('my-post-title');                         // true
+Validator::json('{"valid": true}');                       // true
+----
+
+==== Security Validators
+
+[source,php]
+----
+Validator::noNullBytes("safe\x00string");  // false (null byte!)
+Validator::safeFilename('../../../etc/passwd');  // false
+Validator::safeFilename('document.pdf');         // true
 ----
 
 === Sanitizer
 
-The `Sanitizer` class provides input sanitization for safe output.
+The `Sanitizer` class provides context-aware output escaping (all static).
 
-==== `html(string $input): string`
-
-Sanitizes strings for safe HTML output, preventing XSS attacks.
-
-* Encodes `<`, `>`, `&`, `"`, `'`
-* Uses UTF-8 encoding
-* HTML5 compliant
+==== HTML Context
 
 [source,php]
 ----
-$sanitizer = new Sanitizer();
-
-$sanitizer->html('<script>alert("xss")</script>');
+Sanitizer::html('<script>alert("xss")</script>');
 // Returns: &lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;
 
-$sanitizer->html("It's safe & secure");
-// Returns: It&#039;s safe &amp; secure
+Sanitizer::stripTags('<p>Hello <b>World</b></p>');
+// Returns: Hello World
 ----
 
-==== `stripTags(string $input): string`
-
-Removes all HTML and PHP tags from input.
+==== Other Contexts
 
 [source,php]
 ----
-$sanitizer = new Sanitizer();
+Sanitizer::js("user's input");       // Safe for JS strings
+Sanitizer::css("malicious;color:red");  // Safe for CSS
+Sanitizer::url("path with spaces");  // URL encoded
+Sanitizer::json(['key' => 'value']); // Safe JSON
+Sanitizer::filename("../../../etc/passwd");  // Returns: etc_passwd
+----
 
-$sanitizer->stripTags('<p>Hello <b>World</b></p>');
-// Returns: Hello World
+=== Headers
 
-$sanitizer->stripTags('<?php echo "test"; ?>');
-// Returns: (empty string)
+Security headers helper (call before output).
+
+[source,php]
+----
+// Apply all recommended headers at once
+Headers::secure();
+
+// Or configure individually
+Headers::contentSecurityPolicy([
+    'default-src' => ["'self'"],
+    'script-src'  => ["'self'", 'https://cdn.example.com'],
+    'style-src'   => ["'self'", "'unsafe-inline'"],
+]);
+Headers::strictTransportSecurity(maxAge: 31536000, preload: true);
+Headers::frameOptions('SAMEORIGIN');
+Headers::referrerPolicy('strict-origin-when-cross-origin');
+Headers::permissionsPolicy([
+    'geolocation' => [],
+    'camera' => [],
+]);
+Headers::removeInsecureHeaders();  // Removes X-Powered-By, Server
+----
+
+=== TurtleEscaper
+
+W3C-compliant RDF Turtle escaping for semantic web applications.
+
+[source,php]
+----
+// Escape string literals
+TurtleEscaper::string('Hello "World"');
+// Returns: Hello \"World\"
+
+// Escape IRIs
+TurtleEscaper::iri('https://example.org/resource#1');
+
+// Build complete literals with language/datatype
+TurtleEscaper::literal('Bonjour', language: 'fr');
+// Returns: "Bonjour"@fr
+
+TurtleEscaper::literal('42', datatype: 'http://www.w3.org/2001/XMLSchema#integer');
+// Returns: "42"^^xsd:integer
+
+// Build complete triples
+TurtleEscaper::triple(
+    'https://example.org/person/1',
+    'http://xmlns.com/foaf/0.1/name',
+    'Alice',
+    'en'
+);
+// Returns: <https://example.org/person/1> <http://xmlns.com/foaf/0.1/name> "Alice"@en .
 ----
 
 == Security Considerations
@@ -206,33 +287,33 @@ vendor/bin/php-cs-fixer fix --dry-run
 
 == Roadmap
 
-Planned features for future releases:
+See link:ROADMAP_PRIORITY.md[ROADMAP_PRIORITY.md] for the detailed, integration-informed roadmap.
 
-=== v0.2.0 - Extended Validators
-* [ ] `Validator::ip()` - IPv4/IPv6 validation
-* [ ] `Validator::uuid()` - UUID format validation
-* [ ] `Validator::slug()` - URL slug validation
-* [ ] `Validator::phone()` - Phone number validation
+=== Recently Completed (v0.1.1)
 
-=== v0.3.0 - Security Headers
-* [ ] `Headers::csp()` - Content Security Policy helper
-* [ ] `Headers::hsts()` - HSTS header helper
-* [ ] `Headers::noSniff()` - X-Content-Type-Options
-* [ ] `Headers::frameOptions()` - X-Frame-Options
+* [x] Extended validators (IP, UUID, slug, JSON, filename safety)
+* [x] Context-aware sanitizers (JS, CSS, URL, JSON, filename)
+* [x] Security headers module (CSP, HSTS, X-Frame-Options, etc.)
+* [x] RDF/Turtle escaping (unique differentiator)
+* [x] Static methods (no instance required)
+* [x] SPDX license headers
 
-=== v0.4.0 - Rate Limiting
-* [ ] `RateLimiter` - Token bucket implementation
-* [ ] Redis/APCu backend support
+=== Next Up
 
-=== Future
+* [ ] IndieWeb security helpers (Micropub, IndieAuth, Webmention)
+* [ ] Rate limiting with file/memory backends
 * [ ] CSRF token generation and validation
 * [ ] Input filtering chains
-* [ ] Audit logging utilities
 
 == Related Projects
 
+* https://github.com/hyperpolymath/sanctify-php[sanctify-php] - Static analysis for PHP security (complementary tool)
 * https://github.com/hyperpolymath/wp-audit-toolkit[wp-audit-toolkit] - WordPress security auditing
 * https://github.com/hyperpolymath/proof-of-work[proof-of-work] - Proof-of-work spam prevention
+
+=== Integration Notes
+
+For teams using both `php-aegis` and `sanctify-php`, see link:HANDOVER_SANCTIFY.md[HANDOVER_SANCTIFY.md] for integration guidance and coordinated workflows.
 
 == License
 
