@@ -133,6 +133,13 @@ Validator::ipv6('::1');                   // true
 Validator::uuid('550e8400-e29b-41d4-a716-446655440000');  // true
 Validator::slug('my-post-title');                         // true
 Validator::json('{"valid": true}');                       // true
+Validator::int('42');                                     // true
+Validator::int('5', min: 1, max: 10);                     // true
+Validator::domain('example.com');                         // true
+Validator::hostname('example.com');                       // true (domain or IP)
+Validator::semver('1.2.3-beta.1');                        // true
+Validator::iso8601('2024-01-15T10:30:00Z');               // true
+Validator::hexColor('#ff5733');                           // true
 ----
 
 ==== Security Validators
@@ -142,6 +149,7 @@ Validator::json('{"valid": true}');                       // true
 Validator::noNullBytes("safe\x00string");  // false (null byte!)
 Validator::safeFilename('../../../etc/passwd');  // false
 Validator::safeFilename('document.pdf');         // true
+Validator::printable("Hello World!");             // true (ASCII only)
 ----
 
 === Sanitizer
