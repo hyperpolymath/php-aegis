@@ -14,6 +14,22 @@ image:https://img.shields.io/badge/RSR-Compliant-gold.svg[RSR Compliant]
 
 php-aegis provides a collection of security-focused utilities for PHP applications. Named after the mythological shield of Zeus, it aims to protect your applications from common web vulnerabilities.
 
+=== Best For
+
+* **API services** without view layers
+* **CLI tools** and microservices
+* **Semantic web applications** (RDF/Turtle escaping - unique to php-aegis)
+* **Vanilla PHP** applications without frameworks
+* **Framework gaps** - validation/features that WordPress/Laravel/Symfony lack
+
+=== Not Needed For
+
+* **WordPress plugins/themes** - Use WordPress core functions (`esc_html()`, `esc_attr()`, etc.)
+* **Laravel views** - Use Blade's auto-escaping
+* **Symfony/Twig** - Use Twig's escaping
+
+See link:POSITIONING.md[POSITIONING.md] for detailed guidance.
+
 === Key Features
 
 * **Input Validation** - Strict validation for emails, URLs, IPs, UUIDs, and more

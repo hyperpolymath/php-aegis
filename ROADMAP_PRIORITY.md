@@ -1,17 +1,32 @@
 # php-aegis Roadmap (Integration-Informed Priority)
 
-This roadmap is prioritized based on real-world integration experience with WordPress semantic themes and the feedback received during the wp-sinople-theme security integration.
+This roadmap is prioritized based on real-world integration experience with WordPress themes and plugins, reflecting lessons from wp-sinople-theme and Zotpress integrations.
 
-## Context: Why This Matters
+## Strategic Positioning
 
-During integration testing, the following gaps were identified:
+See [POSITIONING.md](POSITIONING.md) for full positioning strategy.
 
-1. **Feature set too minimal** - WordPress has `esc_html()`, `esc_attr()`, etc. already
-2. **No RDF/Turtle support** - Semantic themes need specialized escaping
-3. **Missing SPDX headers** - Compliance requirement not met
-4. **Not leveraging PHP 8.1+** - Enums, union types, readonly properties unused
+**Key insight**: WordPress (and Laravel, Symfony) already have comprehensive security APIs. php-aegis should:
 
-This roadmap addresses these gaps in priority order.
+1. **Target non-framework PHP** - APIs, CLI tools, microservices
+2. **Provide unique capabilities** - RDF/Turtle, security headers, extended validators
+3. **Fill framework gaps** - What WordPress/Laravel/Symfony don't provide
+
+**Do NOT prioritize**: Duplicating `esc_html()`, `esc_attr()` equivalents that frameworks already do well.
+
+## Context: Integration Findings
+
+| Integration | Finding |
+|-------------|---------|
+| wp-sinople-theme | RDF/Turtle escaping is unique value; basic sanitization duplicates WordPress |
+| Zotpress plugin | Mature WP plugins already use core functions; php-aegis not needed for basic security |
+
+**Prioritize features WordPress lacks**:
+- RDF/Turtle escaping ✅
+- Security headers ✅
+- Extended validators (UUID, IP, semver, etc.) ✅
+- IndieWeb security (Micropub, IndieAuth)
+- Rate limiting without external dependencies
 
 ---
 
