@@ -593,13 +593,120 @@ These issues were discovered during sinople-theme integration:
 
 ---
 
+## Additional Findings (Report 5: Sinople Theme - Critical Vulnerability Fixed)
+
+### 18. TurtleEscaper Fixed Real Vulnerability
+
+**Critical Finding**: The theme was using `addslashes()` for RDF Turtle escaping - this is SQL escaping, NOT Turtle escaping. This was a real RDF injection vulnerability.
+
+**Before (vulnerable)**:
+```php
+// DANGEROUS: addslashes() is SQL escaping, not Turtle escaping!
+$turtle = '"' . addslashes($label) . '"@en';
+```
+
+**After (fixed)**:
+```php
+use PhpAegis\TurtleEscaper;
+$turtle = TurtleEscaper::literal($label, language: 'en');
+```
+
+**This validates TurtleEscaper as the #1 unique value proposition of php-aegis.**
+
+### 19. Security Fixes Applied in Real Integration
+
+| Severity | Issue | Fix Applied |
+|----------|-------|-------------|
+| CRITICAL | `addslashes()` for Turtle | `TurtleEscaper::literal()` |
+| CRITICAL | IRI interpolation | `Validator::url()` + error handling |
+| HIGH | URL validation via `strpos()` | `parse_url()` host comparison |
+| HIGH | Unsanitized Micropub input | `sanitize_text_field()` + `wp_kses_post()` |
+| MEDIUM | No security headers | `Headers::secure()` equivalent |
+| MEDIUM | No rate limiting | 1-min rate limit for Webmentions |
+| LOW | Missing `strict_types` | Added to all files |
+
+### 20. New Detection Rules for sanctify-php
+
+**RDF Turtle as Distinct Output Context**:
+
+sanctify-php should recognize Turtle output contexts and flag:
+```haskell
+-- RDF Turtle detection rules
+turtleRules = [
+  -- Dangerous: SQL escaping in Turtle context
+  ("turtle_addslashes", "addslashes\\s*\\([^)]+\\).*['\"]@[a-z]{2}",
+   "Use TurtleEscaper::literal() instead of addslashes() for Turtle"),
+
+  -- Dangerous: String interpolation in Turtle IRI
+  ("turtle_iri_interp", "<.*\\$[a-zA-Z_].*>",
+   "Use TurtleEscaper::iri() for Turtle IRIs"),
+
+  -- Dangerous: Raw variable in Turtle string
+  ("turtle_string_raw", "\"\\$[a-zA-Z_][^\"]*\"@[a-z]",
+   "Use TurtleEscaper::string() for Turtle literals")
+]
+```
+
+**WordPress REST API Pattern Recognition**:
+```haskell
+-- WordPress REST API rules
+restRules = [
+  ("rest_missing_permission", "register_rest_route.*permission_callback.*__return_true",
+   "REST routes should verify permissions"),
+
+  ("rest_raw_param", "\\$request\\[.*\\](?!.*sanitize)",
+   "Sanitize REST API parameters")
+]
+```
+
+**WordPress Hook Detection** (reduce false positives):
+```haskell
+-- Functions defined via add_action/add_filter are called by WordPress
+wpHookFunctions = extractFunctionsFrom [
+  "add_action\\s*\\([^,]+,\\s*['\"]([^'\"]+)",
+  "add_filter\\s*\\([^,]+,\\s*['\"]([^'\"]+)"
+]
+-- These should not be flagged as "unused functions"
+```
+
+### 21. php-aegis Enhancement Requests
+
+From this integration:
+
+| Request | Priority | Notes |
+|---------|----------|-------|
+| WordPress nonce validator | Medium | `Validator::wpNonce($nonce, $action)` |
+| WordPress capability checker | Medium | `Validator::wpCapability($cap)` |
+| TurtleEscaper case sensitivity docs | Low | Language tags should be lowercase |
+| SPDX identifier validator | Low | `Validator::spdx($identifier)` |
+| Headers + WordPress integration docs | Medium | How to use with `wp_headers` filter |
+
+---
+
+## Final Summary: Integration Value Matrix
+
+| Tool | WordPress Value | Non-WP Value | Unique Capability |
+|------|----------------|--------------|-------------------|
+| **php-aegis** | Low (WP has `esc_*`) | **High** | RDF/Turtle escaping |
+| **sanctify-php** | **High** (finds WP issues) | **High** | Taint tracking |
+
+### Key Learnings Across 5 Reports
+
+1. **TurtleEscaper is the killer feature** - Fixed real vulnerabilities in semantic web themes
+2. **GHC barrier is critical** - Confirmed in every sanctify-php integration attempt
+3. **WordPress has comprehensive APIs** - php-aegis basic escaping is redundant
+4. **php-aegis shines in framework gaps** - Security headers, extended validators, RDF/Turtle
+5. **sanctify-php needs WordPress awareness** - Hook detection, REST API patterns
+
+---
+
 ## Contact
 
 For questions about this integration or to coordinate between repos:
 - php-aegis: https://github.com/hyperpolymath/php-aegis
 - sanctify-php: https://github.com/hyperpolymath/sanctify-php
-- Integration tested in: wp-sinople-theme, Zotpress, sinople-theme
+- Integration tested in: wp-sinople-theme, Zotpress, sinople-theme (×2)
 
 ---
 
-*Generated from real-world WordPress integration experience (Reports 1, 2, 3 & 4).*
+*Generated from real-world WordPress integration experience (Reports 1-5).*
