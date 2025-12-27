@@ -4,6 +4,7 @@ This document provides a comprehensive checklist for secure PHP development usin
 
 ## Table of Contents
 
+- [OWASP Top 10 Mapping](#owasp-top-10-mapping)
 - [PHP Configuration](#php-configuration)
 - [Input Validation](#input-validation)
 - [Output Sanitization](#output-sanitization)
@@ -15,6 +16,329 @@ This document provides a comprehensive checklist for secure PHP development usin
 - [Error Handling](#error-handling)
 - [CI/CD Security](#cicd-security)
 - [Dependency Management](#dependency-management)
+
+---
+
+## OWASP Top 10 Mapping
+
+This section maps php-aegis features and checklist items to the [OWASP Top 10 2021](https://owasp.org/Top10/) vulnerabilities.
+
+### Summary Matrix
+
+| OWASP ID | Vulnerability | php-aegis Coverage | Section |
+|----------|--------------|-------------------|---------|
+| A01:2021 | Broken Access Control | Partial (Headers) | [HTTP Headers](#http-security-headers) |
+| A02:2021 | Cryptographic Failures | Guidelines | [Cryptography](#cryptography) |
+| A03:2021 | Injection | **Full** (Validator, Sanitizer, TurtleEscaper) | [Input](#input-validation), [Output](#output-sanitization) |
+| A04:2021 | Insecure Design | Guidelines | [All Sections](#secure-defaults-checklist) |
+| A05:2021 | Security Misconfiguration | **Full** (Headers) | [HTTP Headers](#http-security-headers), [PHP Config](#php-configuration) |
+| A06:2021 | Vulnerable Components | Guidelines | [Dependencies](#dependency-management) |
+| A07:2021 | Auth Failures | Guidelines | [Authentication](#authentication--sessions) |
+| A08:2021 | Data Integrity Failures | Partial (CSP) | [HTTP Headers](#http-security-headers) |
+| A09:2021 | Logging Failures | Guidelines | [Error Handling](#error-handling) |
+| A10:2021 | SSRF | Partial (Validator) | [Input Validation](#input-validation) |
+
+---
+
+### A01:2021 - Broken Access Control
+
+**Risk:** Attackers access unauthorized resources or perform actions outside their permissions.
+
+**php-aegis Mitigations:**
+
+| Control | php-aegis Feature | Code Example |
+|---------|------------------|--------------|
+| CSRF Prevention | `Headers::secure()` sets SameSite cookies | `Headers::secure()` |
+| Clickjacking | `Headers::frameOptions('DENY')` | `Headers::frameOptions()` |
+| CORS Policies | `Headers::crossOrigin*Policy()` | `Headers::crossOriginResourcePolicy()` |
+
+**Checklist:**
+- [ ] Use `Headers::frameOptions('DENY')` to prevent clickjacking
+- [ ] Implement proper session management (see [Authentication](#authentication--sessions))
+- [ ] Validate user permissions on every request
+- [ ] Use CSRF tokens for state-changing operations
+- [ ] Apply principle of least privilege
+
+---
+
+### A02:2021 - Cryptographic Failures
+
+**Risk:** Sensitive data exposed due to weak/missing encryption.
+
+**php-aegis Mitigations:**
+
+| Control | php-aegis Feature | Code Example |
+|---------|------------------|--------------|
+| HTTPS Enforcement | `Validator::httpsUrl()` | `Validator::httpsUrl($url)` |
+| HSTS | `Headers::strictTransportSecurity()` | `Headers::strictTransportSecurity(31536000, true, true)` |
+
+**Checklist:**
+- [ ] Use `Validator::httpsUrl()` to reject non-HTTPS URLs
+- [ ] Enable HSTS with `Headers::strictTransportSecurity()`
+- [ ] Never use MD5/SHA1 for security (see [Cryptography](#cryptography))
+- [ ] Use `random_bytes()` for secure random data
+- [ ] Use Argon2id for password hashing
+
+**CI Enforcement:**
+```yaml
+# In php-lint.yml - checks for weak cryptography
+- name: Check weak cryptography
+  run: grep -rEn 'md5\s*\(|sha1\s*\(' --include="*.php" src/
+```
+
+---
+
+### A03:2021 - Injection
+
+**Risk:** Untrusted data interpreted as commands (SQL, XSS, OS, LDAP, Turtle).
+
+**php-aegis Mitigations:**
+
+| Attack Type | php-aegis Feature | Code Example |
+|-------------|------------------|--------------|
+| XSS (HTML) | `Sanitizer::html()` | `echo Sanitizer::html($input)` |
+| XSS (Attr) | `Sanitizer::attr()` | `value="<?= Sanitizer::attr($v) ?>"` |
+| XSS (JS) | `Sanitizer::js()` | `var x = <?= Sanitizer::js($v) ?>` |
+| Path Traversal | `Validator::safeFilename()` | `Validator::safeFilename($name)` |
+| Null Byte | `Validator::noNullBytes()` | `Validator::noNullBytes($path)` |
+| RDF/SPARQL | `TurtleEscaper::string()` | `TurtleEscaper::literal($v)` |
+| URL Injection | `Sanitizer::url()` | `href="<?= Sanitizer::url($u) ?>"` |
+| JSON Injection | `Sanitizer::json()` | `Sanitizer::json($data)` |
+
+**Checklist:**
+- [ ] Use `Sanitizer::html()` for all HTML output
+- [ ] Use `Sanitizer::attr()` for HTML attributes
+- [ ] Use `Sanitizer::js()` for inline JavaScript
+- [ ] Use `Sanitizer::json()` for JSON responses
+- [ ] Use `TurtleEscaper::literal()` for RDF/Turtle data
+- [ ] Use `Validator::safeFilename()` for file operations
+- [ ] Use prepared statements for ALL database queries
+
+**CI Enforcement:**
+```yaml
+# In php-lint.yml - checks for injection patterns
+- name: Check dangerous functions
+  run: |
+    grep -rEn 'eval\s*\(|exec\s*\(' --include="*.php" src/
+    grep -rEn 'echo\s+\$_(GET|POST)' --include="*.php" src/
+```
+
+---
+
+### A04:2021 - Insecure Design
+
+**Risk:** Missing or ineffective security controls in application design.
+
+**php-aegis Mitigations:**
+
+| Control | php-aegis Feature | Purpose |
+|---------|------------------|---------|
+| Secure Defaults | `Headers::secure()` | One-call security setup |
+| Type Safety | All methods require `string` types | Prevents type confusion |
+| Fail Secure | Validators return `false` on invalid input | Reject by default |
+
+**Checklist:**
+- [ ] Call `Headers::secure()` early in every request
+- [ ] Use `declare(strict_types=1)` in all PHP files
+- [ ] Validate before processing, sanitize before output
+- [ ] Reject invalid input (don't try to "fix" it)
+- [ ] Design with defense in depth
+
+---
+
+### A05:2021 - Security Misconfiguration
+
+**Risk:** Missing security hardening, default credentials, verbose errors.
+
+**php-aegis Mitigations:**
+
+| Misconfiguration | php-aegis Feature | Code Example |
+|-----------------|------------------|--------------|
+| Missing CSP | `Headers::contentSecurityPolicy()` | `Headers::secure()` |
+| Missing HSTS | `Headers::strictTransportSecurity()` | `Headers::secure()` |
+| Server Leakage | `Headers::removeInsecureHeaders()` | `Headers::secure()` |
+| MIME Sniffing | `Headers::contentTypeOptions()` | `Headers::secure()` |
+| Missing Permissions-Policy | `Headers::permissionsPolicy()` | `Headers::secure()` |
+
+**Headers set by `Headers::secure()`:**
+```
+Content-Security-Policy: default-src 'self'
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=()
+```
+
+**Checklist:**
+- [ ] Call `Headers::secure()` on every response
+- [ ] Configure PHP securely (see [PHP Configuration](#php-configuration))
+- [ ] Disable `display_errors` in production
+- [ ] Remove default credentials and accounts
+- [ ] Review all security headers with [securityheaders.com](https://securityheaders.com)
+
+---
+
+### A06:2021 - Vulnerable and Outdated Components
+
+**Risk:** Using libraries with known vulnerabilities.
+
+**php-aegis Design:**
+- **Zero runtime dependencies** - Only PHP 8.1+ built-ins
+- No vulnerable dependencies to track in production
+
+**Checklist:**
+- [ ] Run `composer audit` on every CI build
+- [ ] Keep PHP version updated (8.1+ required)
+- [ ] Review dev dependencies before adding
+- [ ] Enable Dependabot/Renovate for automatic updates
+
+**CI Enforcement:**
+```yaml
+# In php-lint.yml
+- name: Run Composer audit
+  run: composer audit --format=plain
+```
+
+---
+
+### A07:2021 - Identification and Authentication Failures
+
+**Risk:** Weak passwords, session hijacking, credential stuffing.
+
+**php-aegis Mitigations:**
+
+| Control | php-aegis Feature | Purpose |
+|---------|------------------|---------|
+| Session Security | `Headers::secure()` sets cookie flags | SameSite, Secure |
+
+**Checklist:**
+- [ ] Use `password_hash()` with `PASSWORD_ARGON2ID`
+- [ ] Use `password_verify()` for constant-time comparison
+- [ ] Regenerate session ID on login (`session_regenerate_id(true)`)
+- [ ] Set session cookie flags: HttpOnly, Secure, SameSite=Strict
+- [ ] Implement rate limiting for authentication
+- [ ] Use MFA for sensitive operations
+
+---
+
+### A08:2021 - Software and Data Integrity Failures
+
+**Risk:** Untrusted code execution, insecure CI/CD, missing integrity checks.
+
+**php-aegis Mitigations:**
+
+| Control | php-aegis Feature | Purpose |
+|---------|------------------|---------|
+| CSP | `Headers::contentSecurityPolicy()` | Prevents inline script injection |
+| SRI Support | Design for external script verification | Subresource Integrity |
+
+**Checklist:**
+- [ ] Use Content-Security-Policy to block inline scripts
+- [ ] Pin GitHub Actions to commit SHAs (not tags)
+- [ ] Verify `composer.lock` in CI builds
+- [ ] Sign commits with GPG
+- [ ] Use Subresource Integrity for CDN resources
+
+**CI Enforcement:**
+```yaml
+# Pin actions to SHA for integrity
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+```
+
+---
+
+### A09:2021 - Security Logging and Monitoring Failures
+
+**Risk:** Insufficient logging, missing alerting, undetected breaches.
+
+**Checklist:**
+- [ ] Log authentication attempts (success and failure)
+- [ ] Log access control failures
+- [ ] Log input validation failures (potential attacks)
+- [ ] Don't log sensitive data (passwords, tokens, PII)
+- [ ] Set up alerting for anomalous patterns
+- [ ] Monitor error logs for security issues
+
+**Error Handler Pattern:**
+```php
+set_exception_handler(function (Throwable $e): void {
+    // Log for operators
+    error_log(sprintf('[%s] %s', get_class($e), $e->getMessage()));
+
+    // Generic response to users
+    http_response_code(500);
+    echo json_encode(['error' => 'An unexpected error occurred']);
+    exit(1);
+});
+```
+
+---
+
+### A10:2021 - Server-Side Request Forgery (SSRF)
+
+**Risk:** Attacker forces server to make requests to unintended destinations.
+
+**php-aegis Mitigations:**
+
+| Control | php-aegis Feature | Code Example |
+|---------|------------------|--------------|
+| URL Validation | `Validator::url()` | `Validator::url($url)` |
+| HTTPS Enforcement | `Validator::httpsUrl()` | `Validator::httpsUrl($url)` |
+| Hostname Validation | `Validator::hostname()` | `Validator::hostname($host)` |
+| IP Validation | `Validator::ip()`, `ipv4()`, `ipv6()` | `Validator::ip($ip)` |
+
+**Checklist:**
+- [ ] Validate all user-supplied URLs with `Validator::url()`
+- [ ] Prefer `Validator::httpsUrl()` to enforce HTTPS
+- [ ] Maintain allowlist of permitted domains/IPs
+- [ ] Block requests to internal/private IP ranges
+- [ ] Don't follow redirects blindly
+
+**Safe URL Fetching:**
+```php
+use PhpAegis\Validator;
+
+function safeFetch(string $url): string {
+    // Validate URL format
+    if (!Validator::httpsUrl($url)) {
+        throw new InvalidArgumentException('Invalid or non-HTTPS URL');
+    }
+
+    // Parse and validate hostname
+    $host = parse_url($url, PHP_URL_HOST);
+    if (!$host || !Validator::domain($host)) {
+        throw new InvalidArgumentException('Invalid hostname');
+    }
+
+    // Block internal/private IPs (allowlist approach is better)
+    $ip = gethostbyname($host);
+    if (filter_var($ip, FILTER_VALIDATE_IP,
+        FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+        throw new InvalidArgumentException('Private/reserved IP not allowed');
+    }
+
+    // Now safe to fetch
+    return file_get_contents($url);
+}
+```
+
+---
+
+### OWASP Coverage Summary
+
+| php-aegis Class | OWASP Categories Addressed |
+|----------------|---------------------------|
+| `Validator` | A03, A10 |
+| `Sanitizer` | A03 |
+| `Headers` | A01, A02, A04, A05, A08 |
+| `TurtleEscaper` | A03 |
+
+**Legend:**
+- **Full Coverage**: php-aegis provides direct protection
+- **Partial Coverage**: php-aegis helps but additional measures needed
+- **Guidelines**: Documentation and checklists provided
 
 ---
 

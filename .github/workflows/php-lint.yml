@@ -10,6 +10,7 @@ on:
       - 'composer.json'
       - 'composer.lock'
       - 'phpstan.neon'
+      - 'phpunit.xml'
       - '.php-cs-fixer.dist.php'
       - '.github/workflows/php-lint.yml'
   pull_request:
@@ -19,6 +20,7 @@ on:
       - 'composer.json'
       - 'composer.lock'
       - 'phpstan.neon'
+      - 'phpunit.xml'
       - '.php-cs-fixer.dist.php'
       - '.github/workflows/php-lint.yml'
 
@@ -286,6 +288,58 @@ jobs:
           composer audit --format=plain || echo "::warning::Vulnerabilities found in dependencies"
 
   # ============================================================
+  # Unit Tests - PHPUnit with coverage
+  # ============================================================
+  tests:
+    name: Unit Tests (PHPUnit)
+    runs-on: ubuntu-latest
+    needs: syntax
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2.32.0
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: xdebug
+          coverage: xdebug
+          tools: phpunit:10
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --no-interaction
+
+      - name: Run PHPUnit tests
+        run: |
+          vendor/bin/phpunit --coverage-text --coverage-clover=coverage/clover.xml
+
+      - name: Check coverage threshold
+        run: |
+          # Extract coverage percentage from clover.xml
+          if [ -f coverage/clover.xml ]; then
+            COVERAGE=$(php -r "
+              \$xml = simplexml_load_file('coverage/clover.xml');
+              \$metrics = \$xml->project->metrics;
+              \$elements = (int)\$metrics['elements'];
+              \$covered = (int)\$metrics['coveredelements'];
+              if (\$elements > 0) {
+                echo round((\$covered / \$elements) * 100, 2);
+              } else {
+                echo '0';
+              }
+            ")
+            echo "Code coverage: ${COVERAGE}%"
+            echo "## Test Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+
+            # Fail if coverage is below 70%
+            if (( $(echo "$COVERAGE < 70" | bc -l) )); then
+              echo "::warning::Coverage is below 70% threshold"
+            fi
+          fi
+
+  # ============================================================
   # Multi-version PHP Test - Ensure compatibility
   # ============================================================
   php-compat:
@@ -324,7 +378,7 @@ jobs:
   lint-summary:
     name: Lint Summary
     runs-on: ubuntu-latest
-    needs: [syntax, code-style, phpstan, license-headers, strict-types, security-patterns, composer-audit, php-compat]
+    needs: [syntax, code-style, phpstan, tests, license-headers, strict-types, security-patterns, composer-audit, php-compat]
     if: always()
     permissions:
       contents: read
@@ -338,6 +392,7 @@ jobs:
           echo "| Syntax | ${{ needs.syntax.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Code Style | ${{ needs.code-style.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| PHPStan | ${{ needs.phpstan.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.tests.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| License Headers | ${{ needs.license-headers.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Strict Types | ${{ needs.strict-types.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security Patterns | ${{ needs.security-patterns.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
@@ -348,6 +403,7 @@ jobs:
           if [ "${{ needs.syntax.result }}" != "success" ] || \
              [ "${{ needs.code-style.result }}" != "success" ] || \
              [ "${{ needs.phpstan.result }}" != "success" ] || \
+             [ "${{ needs.tests.result }}" != "success" ] || \
              [ "${{ needs.strict-types.result }}" != "success" ] || \
              [ "${{ needs.security-patterns.result }}" != "success" ]; then
             echo ""
