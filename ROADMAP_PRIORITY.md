@@ -187,6 +187,60 @@ if (!$limiter->attempt($clientIp)) {
 
 ---
 
+## Phase 7: Ecosystem Expansion (v0.7.0)
+
+**Goal**: Maximize adoption across PHP ecosystem.
+
+### 7.1 Compatibility Package
+
+Create `hyperpolymath/php-aegis-compat` for PHP 7.4+ environments.
+
+See [COMPATIBILITY.md](COMPATIBILITY.md) for full strategy.
+
+```bash
+# PHP 7.4+ (legacy WordPress hosts)
+composer require hyperpolymath/php-aegis-compat
+
+# PHP 8.1+ (recommended)
+composer require hyperpolymath/php-aegis
+```
+
+### 7.2 WordPress Adapter
+
+WordPress-style function wrappers:
+```php
+aegis_html($input)      // Maps to Sanitizer::html()
+aegis_attr($input)      // Maps to Sanitizer::attr()
+aegis_js($input)        // Maps to Sanitizer::js()
+aegis_url($input)       // Maps to Sanitizer::url()
+aegis_send_security_headers()  // Maps to Headers::secure()
+```
+
+### 7.3 Laravel Service Provider
+
+```php
+// Auto-registered via package discovery
+PhpAegis\Laravel\AegisServiceProvider::class
+
+// Blade directive
+@aegis($userContent)
+
+// DI in controllers
+public function store(Sanitizer $sanitizer) { ... }
+```
+
+### 7.4 Symfony Bundle
+
+```php
+// config/bundles.php
+PhpAegis\Symfony\AegisBundle::class => ['all' => true]
+
+// Twig filter
+{{ user_content|aegis_html }}
+```
+
+---
+
 ## Differentiation Strategy
 
 ### What WordPress Has (don't duplicate)

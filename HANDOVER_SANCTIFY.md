@@ -228,17 +228,165 @@ RECOMMENDATION:
 |----------|-------|--------|
 | P0 | Pre-built binaries / Docker image | Medium |
 | P0 | PHP 8.x syntax support | High |
+| P0 | Official GitHub Action (`sanctify-php-action`) | Medium |
 | P1 | WordPress-specific rulesets | Medium |
 | P1 | RDF/Turtle context detection | Medium |
+| P1 | SARIF output for GitHub Security tab | Low |
+| P2 | Incremental analysis (cache, scan changed files only) | High |
 | P2 | IndieWeb protocol patterns | Low |
 | P2 | php-aegis fix suggestions in output | Low |
+
+---
+
+## Additional Findings (Report 2)
+
+### 6. GitHub Action Required
+
+**Problem**: No official GitHub Action for CI integration.
+
+**Impact**: Teams must write custom workflow configuration or use Docker manually.
+
+**Recommendation**: Create `hyperpolymath/sanctify-php-action` with:
+```yaml
+# .github/workflows/security.yml
+- uses: hyperpolymath/sanctify-php-action@v1
+  with:
+    path: ./src
+    config: sanctify.yml
+    sarif-output: results.sarif
+```
+
+### 7. SARIF Output for GitHub Integration
+
+**What Works Well**: SARIF format enables direct GitHub Security tab integration.
+
+**Enhancement**: Ensure SARIF output includes:
+- Rule descriptions with OWASP references
+- Severity levels mapped to GitHub's critical/high/medium/low
+- Fix suggestions linking to php-aegis methods
+
+```json
+{
+  "runs": [{
+    "tool": { "driver": { "name": "sanctify-php" } },
+    "results": [{
+      "ruleId": "xss-output",
+      "level": "error",
+      "message": { "text": "Unescaped output" },
+      "fixes": [{
+        "description": { "text": "Use PhpAegis\\Sanitizer::html()" }
+      }]
+    }]
+  }]
+}
+```
+
+### 8. Incremental Analysis
+
+**Problem**: Full codebase scans are slow on large projects.
+
+**Recommendation**:
+- Cache AST and taint analysis results
+- On subsequent runs, only analyze changed files
+- Invalidate cache when dependencies change
+- Use file modification timestamps or git diff
+
+```bash
+# First run: full analysis, build cache
+sanctify analyze ./src --cache .sanctify-cache
+
+# Subsequent runs: incremental
+sanctify analyze ./src --cache .sanctify-cache --incremental
+```
+
+### 9. Composer Plugin Wrapper
+
+**Problem**: PHP developers expect `composer require` installation.
+
+**Recommendation**: Create a Composer plugin that:
+1. Downloads pre-built binary for platform
+2. Provides `vendor/bin/sanctify` wrapper
+3. Handles updates via Composer
+
+```bash
+composer require --dev hyperpolymath/sanctify-php
+vendor/bin/sanctify analyze ./src
+```
+
+---
+
+## Standalone vs Combined Operation
+
+### Minimal Requirements for Each Tool
+
+**php-aegis standalone** (runtime protection):
+- Zero dependencies (works everywhere PHP runs)
+- Static methods for easy drop-in usage
+- Works without sanctify-php installed
+
+**sanctify-php standalone** (static analysis):
+- Pre-built binary (no Haskell needed)
+- SARIF output for any CI system
+- Works without php-aegis (just reports issues)
+
+### Combined Synergies
+
+When both tools are used together:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Combined Workflow                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌────────────┐   ┌─────────────────┐   ┌──────────────────┐   │
+│  │   Write    │──▶│  sanctify-php   │──▶│  Fix with        │   │
+│  │   Code     │   │  (finds issues) │   │  php-aegis       │   │
+│  └────────────┘   └─────────────────┘   └──────────────────┘   │
+│                            │                      │              │
+│                            ▼                      ▼              │
+│                   ┌─────────────────────────────────────┐       │
+│                   │  sanctify-php recognizes php-aegis  │       │
+│                   │  methods as "safe sinks" in taint   │       │
+│                   │  analysis, reducing false positives │       │
+│                   └─────────────────────────────────────┘       │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key synergy**: sanctify-php should recognize php-aegis sanitizers as safe:
+```haskell
+-- sanctify-php taint rules
+safeSinks = [
+  "PhpAegis\\Sanitizer::html",
+  "PhpAegis\\Sanitizer::attr",
+  "PhpAegis\\Sanitizer::js",
+  "PhpAegis\\Sanitizer::css",
+  "PhpAegis\\Sanitizer::url",
+  "PhpAegis\\TurtleEscaper::string",
+  "PhpAegis\\TurtleEscaper::iri"
+]
+```
+
+---
+
+## Integration Metrics
+
+| Metric | Before Integration | After Integration |
+|--------|-------------------|-------------------|
+| Files with `strict_types` | 0 | 24 (100%) |
+| PHP version | 7.4+ | 8.2+ |
+| WordPress version | 5.8+ | 6.4+ |
+| CI security checks | 0 | 4 |
+
+---
 
 ## Contact
 
 For questions about this integration or to coordinate between repos:
 - php-aegis: https://github.com/hyperpolymath/php-aegis
+- sanctify-php: https://github.com/hyperpolymath/sanctify-php
 - Integration tested in: wp-sinople-theme
 
 ---
 
-*Generated from real-world WordPress semantic theme integration experience.*
+*Generated from real-world WordPress semantic theme integration experience (Reports 1 & 2).*
