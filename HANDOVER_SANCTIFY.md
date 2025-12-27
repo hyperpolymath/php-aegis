@@ -486,13 +486,120 @@ exit;
 
 ---
 
+## Additional Findings (Report 4: sinople-theme Full Integration)
+
+### 14. Successful Integration Pattern
+
+**What Worked**: Full integration with WordPress theme including:
+- Function wrappers: `sinople_aegis_html()`, `sinople_aegis_attr()`, `sinople_aegis_json()`
+- Validation wrappers: `sinople_aegis_validate_*()` functions
+- RDF/Turtle feed endpoint using `TurtleEscaper` (unique value!)
+- Graceful fallback to WordPress functions when php-aegis unavailable
+- Unit tests for the integration
+
+**Key Success**: TurtleEscaper proved its unique value by enabling a `/feed/turtle/` endpoint.
+
+### 15. sanctify-php False Positives Identified
+
+**Issues to address**:
+
+1. **UnsafeRedirect false positive**: When `exit;` is on the next line
+```php
+// This triggers false positive:
+wp_redirect($url);
+exit;
+
+// sanctify-php expects:
+wp_redirect($url); exit;
+```
+
+2. **MissingTextDomain false positive**: Flags WordPress core functions
+```php
+// This may be flagged incorrectly:
+__('Text', 'theme-domain');  // OK
+_e('Text', 'theme-domain');  // OK
+esc_html__('Text');          // May flag - but sometimes domain is optional
+```
+
+**Recommendation**: Add configuration options:
+```yaml
+# sanctify.yml
+rules:
+  UnsafeRedirect:
+    allow_next_line_exit: true
+  MissingTextDomain:
+    ignore_core_functions: true
+```
+
+### 16. PHP 8.1+ Syntax Verification Needed
+
+**Concern**: Parser may not handle modern PHP syntax.
+
+**Test cases to verify**:
+```php
+// Nullsafe operator (PHP 8.0+)
+$value = $object?->property?->method();
+
+// Match expression (PHP 8.0+)
+$result = match($type) {
+    'html' => Sanitizer::html($input),
+    'js' => Sanitizer::js($input),
+    default => $input,
+};
+
+// Constructor property promotion (PHP 8.0+)
+public function __construct(
+    private readonly string $name,
+) {}
+
+// First-class callable syntax (PHP 8.1+)
+$fn = Sanitizer::html(...);
+```
+
+### 17. Guix Export Documentation
+
+**Issue**: Guix package export documentation is incomplete.
+
+**Recommendation**: Add to sanctify-php docs:
+```scheme
+;; guix.scm
+(use-modules (guix packages)
+             (guix git-download)
+             (guix build-system haskell))
+
+(package
+  (name "sanctify-php")
+  (version "0.1.0")
+  (source (git-reference
+           (url "https://github.com/hyperpolymath/sanctify-php")
+           (commit (string-append "v" version))))
+  (build-system haskell-build-system)
+  (synopsis "PHP security static analyzer")
+  (license license:agpl3+))
+```
+
+---
+
+## php-aegis Self-Identified Issues (Report 4)
+
+These issues were discovered during sinople-theme integration:
+
+| Issue | Status | Resolution |
+|-------|--------|------------|
+| `Headers::secure()` missing `permissionsPolicy()` | ✅ Fixed | Added in this PR |
+| `php-aegis-compat` package doesn't exist | 📋 Planned | Create separate repo |
+| Not published on Packagist | 📋 Planned | Publish after v0.2.0 |
+| WordPress mu-plugin adapter not implemented | 📋 Planned | Phase 7 roadmap |
+
+---
+
 ## Contact
 
 For questions about this integration or to coordinate between repos:
 - php-aegis: https://github.com/hyperpolymath/php-aegis
 - sanctify-php: https://github.com/hyperpolymath/sanctify-php
-- Integration tested in: wp-sinople-theme, Zotpress
+- Integration tested in: wp-sinople-theme, Zotpress, sinople-theme
 
 ---
 
-*Generated from real-world WordPress integration experience (Reports 1, 2 & 3).*
+*Generated from real-world WordPress integration experience (Reports 1, 2, 3 & 4).*

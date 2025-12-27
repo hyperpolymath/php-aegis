@@ -33,6 +33,13 @@ final class Headers
         self::contentSecurityPolicy([
             'default-src' => ["'self'"],
         ]);
+        self::permissionsPolicy([
+            'geolocation' => [],
+            'camera' => [],
+            'microphone' => [],
+            'payment' => [],
+        ]);
+        self::removeInsecureHeaders();
     }
 
     /**

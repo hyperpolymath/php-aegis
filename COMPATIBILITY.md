@@ -1,16 +1,18 @@
 # php-aegis Compatibility Strategy
 
+> **Note**: This document describes the planned compatibility strategy. The `php-aegis-compat` package is not yet implemented. See the [roadmap](ROADMAP_PRIORITY.md) for status.
+
 ## The Problem
 
 php-aegis requires PHP 8.1+, but WordPress officially supports PHP 7.4+. This limits adoption in the WordPress ecosystem where many hosts still run PHP 7.4 or 8.0.
 
 ## Strategy: Dual-Package Approach
 
-Instead of downgrading the main library, we provide a separate compatibility package.
+Instead of downgrading the main library, we will provide a separate compatibility package.
 
 ```
-hyperpolymath/php-aegis          # PHP 8.1+ (main, recommended)
-hyperpolymath/php-aegis-compat   # PHP 7.4+ (polyfill, limited)
+hyperpolymath/php-aegis          # PHP 8.1+ (main, recommended) ✅ Available
+hyperpolymath/php-aegis-compat   # PHP 7.4+ (polyfill, limited) 📋 Planned
 ```
 
 ### Why Not Downgrade?
