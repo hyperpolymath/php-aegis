@@ -73,6 +73,11 @@ htmlcov/
 *.log
 /logs/
 
+# PHP
+.php-cs-fixer.cache
+.phpunit.cache/
+.phpstan.cache/
+
 # Temp
 /tmp/
 *.tmp
