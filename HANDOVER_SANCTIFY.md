@@ -380,13 +380,119 @@ safeSinks = [
 
 ---
 
+## Additional Findings (Report 3: Zotpress Plugin)
+
+### 10. GHC Barrier Confirmed (Critical)
+
+**Problem**: sanctify-php could not run on the Zotpress integration due to missing Haskell toolchain.
+
+**Impact**: This is now confirmed across multiple integration attempts. The Haskell build requirement is the #1 adoption barrier.
+
+**Immediate Recommendations**:
+1. Provide pre-built binaries for:
+   - Linux x86_64 (static binary)
+   - Linux aarch64 (for ARM servers)
+   - macOS Intel
+   - macOS Apple Silicon
+   - Windows x64
+2. Publish Docker image: `ghcr.io/hyperpolymath/sanctify-php:latest`
+3. Create GitHub Action that uses the Docker image internally
+
+**Workaround Used**: Manual analysis using sanctify-php's documented detection patterns.
+
+### 11. WordPress Security API Overlap
+
+**Finding**: When analyzing mature WordPress plugins (like Zotpress), they already follow WordPress security best practices using core functions.
+
+**WordPress provides equivalent security functions**:
+
+| php-aegis | WordPress Equivalent | Notes |
+|-----------|---------------------|-------|
+| `Validator::email()` | `is_email()` | WP version is more permissive |
+| `Validator::url()` | `wp_http_validate_url()` | WP has SSL enforcement |
+| `Sanitizer::html()` | `esc_html()` | Identical functionality |
+| `Sanitizer::attr()` | `esc_attr()` | Identical functionality |
+| `Sanitizer::js()` | `esc_js()` | WP version is context-aware |
+| `Sanitizer::url()` | `esc_url()` | WP handles protocols |
+| `Sanitizer::stripTags()` | `wp_strip_all_tags()` | WP handles more edge cases |
+
+**What sanctify-php should detect**:
+- Direct use of raw PHP functions instead of WordPress equivalents
+- `echo $var` instead of `echo esc_html($var)`
+- `header('Location: ...')` instead of `wp_redirect()`
+- Missing `exit;` after redirect
+
+**sanctify-php rule suggestions**:
+```haskell
+-- WordPress-specific rules
+wpRules = [
+  ("use_wp_redirect", "header\\s*\\(\\s*['\"]Location", "Use wp_redirect() instead of header()"),
+  ("missing_exit_redirect", "wp_redirect\\([^;]+\\);(?!\\s*exit)", "Add exit; after wp_redirect()"),
+  ("raw_echo", "echo\\s+\\$(?!esc_)", "Escape output with esc_html()/esc_attr()"),
+  ("direct_superglobal", "\\$_(GET|POST|REQUEST)\\[", "Sanitize superglobals before use")
+]
+```
+
+### 12. Target Audience Clarification Needed
+
+**Finding**: php-aegis value proposition is unclear for WordPress users.
+
+**Recommended positioning for sanctify-php**:
+
+When sanctify-php detects issues in WordPress code, suggest:
+1. **First choice**: WordPress native function (if available)
+2. **Second choice**: php-aegis function (for gaps WordPress doesn't cover)
+
+```
+VULNERABILITY: Unescaped output
+FILE: plugin.php:42
+CODE: echo $user_input;
+
+RECOMMENDATION:
+  WordPress: echo esc_html($user_input);
+  Or php-aegis: echo \PhpAegis\Sanitizer::html($user_input);
+```
+
+### 13. WordPress-Unique Security Patterns
+
+**What sanctify-php should understand about WordPress**:
+
+```php
+// WordPress-specific security patterns
+
+// 1. ABSPATH protection (must be at top of every PHP file)
+if (!defined('ABSPATH')) exit;
+
+// 2. Nonce verification for forms
+check_admin_referer('action_name');
+wp_verify_nonce($_POST['nonce'], 'action_name');
+
+// 3. Capability checks for privileged actions
+if (!current_user_can('manage_options')) return;
+
+// 4. Prepared statements for database
+$wpdb->prepare("SELECT * FROM table WHERE id = %d", $id);
+
+// 5. Safe redirect
+wp_safe_redirect($url);
+exit;
+```
+
+**Detection rules needed**:
+- Missing ABSPATH check at file start
+- Form handlers without nonce verification
+- AJAX handlers without capability checks
+- Missing `exit;` after redirects
+
+---
+
 ## Contact
 
 For questions about this integration or to coordinate between repos:
 - php-aegis: https://github.com/hyperpolymath/php-aegis
 - sanctify-php: https://github.com/hyperpolymath/sanctify-php
-- Integration tested in: wp-sinople-theme
+- Integration tested in: wp-sinople-theme, Zotpress
 
 ---
 
-*Generated from real-world WordPress semantic theme integration experience (Reports 1 & 2).*
+*Generated from real-world WordPress integration experience (Reports 1, 2 & 3).*
