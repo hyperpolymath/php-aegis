@@ -148,6 +148,27 @@ Sanitizer::jsonEncode(mixed $input): string  // Safe JSON with flags
 
 **Goal**: First-class support for IndieWeb/semantic web patterns.
 
+### Related Project: indieweb2-bastion
+
+The [indieweb2-bastion](https://github.com/hyperpolymath/indieweb2-bastion) repository provides infrastructure-layer security (bastion ingress, oblivious DNS, provenance graphs) that complements php-aegis at the application layer.
+
+**Architectural relationship**:
+```
+┌────────────────────────────────────────────────┐
+│  indieweb2-bastion  │  Infrastructure layer    │
+│  (network, audit)   │  Rate limiting, logging  │
+├─────────────────────┼──────────────────────────┤
+│  php-aegis          │  Application layer       │
+│  (this module)      │  Micropub, IndieAuth,    │
+│                     │  Webmention validation   │
+└────────────────────────────────────────────────┘
+```
+
+**Lessons from indieweb2-bastion**:
+- Use provenance-style tracking for Webmention verification chains
+- Apply bastion patterns for rate limiting endpoints
+- Consider audit logging as a first-class feature
+
 ### 5.1 Micropub Content Sanitizer
 ```php
 Micropub::sanitizeContent(string $html, array $allowedTags = []): string
@@ -165,6 +186,13 @@ IndieAuth::validateRedirectUri(string $uri, string $clientId): bool
 ```php
 Webmention::validateSource(string $url): bool  // Not internal IP
 Webmention::validateTarget(string $url, string $domain): bool
+```
+
+### 5.4 SSRF Prevention
+```php
+// Prevent Webmention SSRF attacks
+Webmention::isInternalIp(string $ip): bool
+Webmention::resolveAndValidate(string $url): ValidationResult
 ```
 
 ---
