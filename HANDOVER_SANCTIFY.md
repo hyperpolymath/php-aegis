@@ -683,6 +683,49 @@ From this integration:
 
 ---
 
+## Related Project: indieweb2-bastion
+
+The [indieweb2-bastion](https://github.com/hyperpolymath/indieweb2-bastion) repository provides infrastructure-layer security that complements php-aegis and sanctify-php at the application layer.
+
+### What indieweb2-bastion Does
+
+| Feature | Purpose |
+|---------|---------|
+| Hardened bastion ingress | Secure network entry points |
+| Oblivious DNS (IPv6) | Privacy-preserving DNS resolution |
+| GraphQL DNS APIs | Programmable domain resolution |
+| SurrealDB provenance graphs | Audit trails & data lineage |
+
+### Relationship to IndieWeb Security
+
+While **not** implementing IndieWeb protocols (Micropub, IndieAuth, Webmention), indieweb2-bastion provides foundational security patterns applicable to IndieWeb infrastructure:
+
+| indieweb2-bastion | IndieWeb Application |
+|-------------------|---------------------|
+| Provenance graphs | Track Webmention verification chains |
+| Audit capabilities | Log IndieAuth token usage |
+| Bastion pattern | Rate limit Webmention endpoints |
+| Policy controls (Nickel) | Define allowed Micropub content |
+
+### Recommended Stack Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Full IndieWeb Stack                    │
+├─────────────────────────────────────────────────────────┤
+│  indieweb2-bastion    │  Infrastructure layer           │
+│  (network, DNS, audit)│  (bastion, provenance)          │
+├───────────────────────┼─────────────────────────────────┤
+│  php-aegis            │  Application layer              │
+│  (validation, escaping)│ (Micropub, IndieAuth, Webmention)│
+├───────────────────────┼─────────────────────────────────┤
+│  sanctify-php         │  Analysis layer                 │
+│  (static analysis)    │  (find vulnerabilities)         │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Final Summary: Integration Value Matrix
 
 | Tool | WordPress Value | Non-WP Value | Unique Capability |
