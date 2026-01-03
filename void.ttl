@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MPL-2.0
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<https://github.com/hyperpolymath/php-aegis> a void:Dataset ;
+    dcterms:title "php-aegis" ;
+    dcterms:description "PHP security toolkit with validation, sanitization, and RDF escaping" ;
+    dcterms:creator <https://github.com/hyperpolymath> ;
+    dcterms:license <https://opensource.org/licenses/MPL-2.0> ;
+    dcterms:subject <http://dbpedia.org/resource/PHP> ;
+    dcterms:subject <http://dbpedia.org/resource/Computer_security> ;
+    dcterms:subject <http://dbpedia.org/resource/Resource_Description_Framework> ;
+    void:feature <http://www.w3.org/ns/formats/Turtle> ;
+    foaf:homepage <https://github.com/hyperpolymath/php-aegis> .

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:dcterms="http://purl.org/dc/terms/">
+  <rdf:Description rdf:about="https://github.com/hyperpolymath/php-aegis">
+    <dc:title>php-aegis</dc:title>
+    <dc:creator>Jonathan D.A. Jewell</dc:creator>
+    <dc:subject>PHP Security</dc:subject>
+    <dc:subject>Input Validation</dc:subject>
+    <dc:subject>Output Sanitization</dc:subject>
+    <dc:subject>Web Security</dc:subject>
+    <dc:description>PHP security and hardening toolkit with input validation, sanitization, security headers, and RDF/Turtle escaping</dc:description>
+    <dc:publisher>Hyperpolymath</dc:publisher>
+    <dc:type>Software</dc:type>
+    <dc:format>application/x-php</dc:format>
+    <dc:identifier>https://github.com/hyperpolymath/php-aegis</dc:identifier>
+    <dc:language>en</dc:language>
+    <dc:rights>MPL-2.0</dc:rights>
+    <dcterms:license rdf:resource="https://opensource.org/licenses/MPL-2.0"/>
+    <dcterms:conformsTo rdf:resource="https://github.com/hyperpolymath/rhodium-standard-repositories"/>
+  </rdf:Description>
+</rdf:RDF>

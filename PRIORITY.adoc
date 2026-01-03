@@ -1,0 +1,80 @@
+// SPDX-License-Identifier: MPL-2.0
+= php-aegis Priority List
+:toc:
+
+== MUST (Critical - Security Library Core)
+
+[cols="1,3,1"]
+|===
+|ID |Task |Status
+
+|M1
+|Post-quantum crypto module (SHAKE3-256, BLAKE3, Kyber, Dilithium, Argon2id, Ed448)
+|✓ DONE
+
+|M2
+|Complete input validation test coverage
+|PENDING
+
+|M3
+|Security headers comprehensive tests
+|PENDING
+
+|M4
+|RDF/Turtle escaping edge case tests
+|PENDING
+|===
+
+== SHOULD (Important - High Value)
+
+[cols="1,3,1"]
+|===
+|ID |Task |Status
+
+|S1
+|IndieWeb security helpers (Micropub, IndieAuth, Webmention)
+|PENDING
+
+|S2
+|Rate limiting with file/memory backends
+|PENDING
+
+|S3
+|CSRF token generation and validation
+|PENDING
+
+|S4
+|Input filtering chains (composable validators)
+|PENDING
+
+|S5
+|Integration with sanctify-php static analysis
+|PENDING
+
+|S6
+|Add Guix/Nix package definitions
+|PENDING
+|===
+
+== COULD (Nice to Have - Future)
+
+[cols="1,3,1"]
+|===
+|ID |Task |Status
+
+|C1
+|OpenID Connect validation helpers
+|PENDING
+
+|C2
+|FIDO2/WebAuthn integration
+|PENDING
+
+|C3
+|Content Security Policy builder
+|PENDING
+
+|C4
+|Subresource Integrity (SRI) helpers
+|PENDING
+|===
