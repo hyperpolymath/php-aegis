@@ -1,6 +1,6 @@
 {
     "name": "hyperpolymath/php-aegis",
-    "description": "PHP security and hardening toolkit - input validation, sanitization, and XSS prevention",
+    "description": "PHP security and hardening toolkit - input validation, sanitization, XSS prevention, WordPress integration, and IndieWeb protocol security",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -9,7 +9,15 @@
         "sanitization",
         "xss",
         "input-validation",
-        "php-security"
+        "php-security",
+        "wordpress",
+        "indieweb",
+        "micropub",
+        "indieauth",
+        "webmention",
+        "rdf",
+        "turtle",
+        "semantic-web"
     ],
     "homepage": "https://github.com/hyperpolymath/php-aegis",
     "authors": [
