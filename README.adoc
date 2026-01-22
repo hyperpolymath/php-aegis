@@ -39,7 +39,11 @@ See link:POSITIONING.md[POSITIONING.md] for detailed guidance.
 * **Input Validation** - Strict validation for emails, URLs, IPs, UUIDs, and more
 * **Context-Aware Sanitization** - HTML, JS, CSS, URL, and JSON output escaping
 * **Security Headers** - Easy CSP, HSTS, X-Frame-Options, and more
+* **Rate Limiting** - Token bucket algorithm with file/memory backends
+* **IndieWeb Security** - Micropub, IndieAuth, Webmention with SSRF prevention
 * **RDF/Turtle Escaping** - Unique W3C-compliant semantic web security (no other PHP lib does this)
+* **Cerro Torre Integration** - Verified container packaging with cryptographic provenance
+* **WordPress Integration** - 23 adapter functions + MU-plugin
 * **Type Safety** - Full `strict_types` enforcement throughout
 * **Modern PHP** - Requires PHP 8.1+ for latest security features
 * **Zero Dependencies** - Core library has no external dependencies
