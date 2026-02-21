@@ -362,3 +362,8 @@ For security vulnerabilities, see link:SECURITY.adoc[SECURITY.adoc].
 This repository follows https://github.com/hyperpolymath/rhodium-standard-repositories[Rhodium Standard Repository] guidelines.
 
 PHP is permitted under RSR as a Tier Exception for security-specific tooling.
+
+
+== Architecture
+
+See link:TOPOLOGY.md[TOPOLOGY.md] for a visual architecture map and completion dashboard.

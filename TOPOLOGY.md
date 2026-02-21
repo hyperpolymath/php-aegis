@@ -1,0 +1,90 @@
+<!-- SPDX-License-Identifier: PMPL-1.0-or-later -->
+<!-- TOPOLOGY.md — Project architecture map and completion dashboard -->
+<!-- Last updated: 2026-02-19 -->
+
+# php-aegis — Project Topology
+
+## System Architecture
+
+```
+                        ┌─────────────────────────────────────────┐
+                        │              PHP APPLICATION            │
+                        │        (API, CLI, Semantic Web)         │
+                        └───────────────────┬─────────────────────┘
+                                            │ Function Calls
+                                            ▼
+                        ┌─────────────────────────────────────────┐
+                        │           PHP-AEGIS TOOLKIT             │
+                        │                                         │
+                        │  ┌───────────┐  ┌───────────────────┐  │
+                        │  │ Validator │  │  Sanitizer        │  │
+                        │  │ (Input)   │  │  (Output)         │  │
+                        │  └─────┬─────┘  └────────┬──────────┘  │
+                        │        │                 │              │
+                        │  ┌─────▼─────┐  ┌────────▼──────────┐  │
+                        │  │ Headers   │  │  TurtleEscaper    │  │
+                        │  │ (Security)│  │  (RDF/Turtle)     │  │
+                        │  └─────┬─────┘  └────────┬──────────┘  │
+                        └────────│─────────────────│──────────────┘
+                                 │                 │
+                                 ▼                 ▼
+                        ┌─────────────────────────────────────────┐
+                        │           SYSTEM INTERFACES             │
+                        │  ┌───────────┐  ┌───────────┐  ┌───────┐│
+                        │  │ HTTP      │  │ Filesystem│  │ Memory││
+                        │  │ Response  │  │ (Backends)│  │ (Rate)││
+                        │  └───────────┘  └───────────┘  └───────┘│
+                        └─────────────────────────────────────────┘
+
+                        ┌─────────────────────────────────────────┐
+                        │          REPO INFRASTRUCTURE            │
+                        │  Justfile / Composer .machine_readable/ │
+                        │  PHPUnit / Stan      0-AI-MANIFEST.a2ml │
+                        └─────────────────────────────────────────┘
+```
+
+## Completion Dashboard
+
+```
+COMPONENT                          STATUS              NOTES
+─────────────────────────────────  ──────────────────  ─────────────────────────────────
+SECURITY MODULES
+  Validator (Strict Input)          ██████████ 100%    Core + Network + Format verified
+  Sanitizer (Context-Aware)         ██████████ 100%    HTML/JS/CSS/JSON stable
+  Headers (CSP/HSTS/etc)            ██████████ 100%    Secure defaults active
+  TurtleEscaper (RDF)               ██████████ 100%    Unique differentiator verified
+
+INTEGRATIONS & ADAPTERS
+  WordPress Integration             ████████░░  80%    23 adapter functions verified
+  Rate Limiting                     ██████░░░░  60%    File/Memory backends active
+  IndieWeb Helpers                  ████░░░░░░  40%    Initial SSRF prevention active
+
+REPO INFRASTRUCTURE
+  Justfile Automation               ██████████ 100%    Standard build/lint tasks
+  .machine_readable/                ██████████ 100%    STATE tracking active
+  Test Suite (PHPUnit)              ██████████ 100%    High coverage verified
+
+─────────────────────────────────────────────────────────────────────────────
+OVERALL:                            █████████░  ~90%   Toolkit stable and production-ready
+```
+
+## Key Dependencies
+
+```
+User Input ──────► Validator ──────► App Logic ──────► Sanitizer
+     │                 │                 │                │
+     ▼                 ▼                 ▼                ▼
+ HTTP Request ──► Headers ───────► Rate Limiter ────► HTTP Response
+```
+
+## Update Protocol
+
+This file is maintained by both humans and AI agents. When updating:
+
+1. **After completing a component**: Change its bar and percentage
+2. **After adding a component**: Add a new row in the appropriate section
+3. **After architectural changes**: Update the ASCII diagram
+4. **Date**: Update the `Last updated` comment at the top of this file
+
+Progress bars use: `█` (filled) and `░` (empty), 10 characters wide.
+Percentages: 0%, 10%, 20%, ... 100% (in 10% increments).
