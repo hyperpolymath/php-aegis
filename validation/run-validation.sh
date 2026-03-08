@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-WP_PATH="${WP_PATH:-/tmp/php-aegis-wp-test}"
+WP_PATH="${WP_PATH:-"$HYPATIA_TMPDIR/php-aegis-wp-test"}"
 WP_URL="${WP_URL:-http://localhost:8888}"
 WP_TITLE="php-aegis Test Site"
 WP_ADMIN_USER="admin"
