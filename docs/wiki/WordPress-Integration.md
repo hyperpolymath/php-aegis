@@ -362,7 +362,7 @@ function generate_schema_org_rdf($post) {
 
     return aegis_turtle_triple(
         $url,
-        'http://schema.org/name',
+        'https://schema.org/name',
         $title,
         get_locale()
     );

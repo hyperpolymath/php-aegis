@@ -283,8 +283,8 @@ add_action('template_redirect', function () {
         $title = aegis_turtle_literal(get_the_title(), 'en');
         $content = aegis_turtle_literal(get_the_content(), 'en');
 
-        echo "$subject <http://schema.org/name> $title .\n";
-        echo "$subject <http://schema.org/articleBody> $content .\n";
+        echo "$subject <https://schema.org/name> $title .\n";
+        echo "$subject <https://schema.org/articleBody> $content .\n";
 
         exit;
     }
