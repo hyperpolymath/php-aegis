@@ -50,7 +50,7 @@
              "RateLimit needs Redis backend for production use"
              "IndieWeb helpers need full protocol flow testing"))
     (low ("Composer license field says MIT — should be PMPL-1.0-or-later or MPL-2.0 fallback"
-          "Autoload SPDX header says AGPL-3.0 — stale, needs update")))
+          "Autoload SPDX headers updated to PMPL-1.0-or-later")))
 
   (critical-next-actions
     (immediate ("Finish WordPress Adapter remaining hooks"

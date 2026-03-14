@@ -8,7 +8,7 @@
  * Requires PHP: 8.1
  * Author: Hyperpolymath
  * Author URI: https://github.com/hyperpolymath
- * License: MIT OR AGPL-3.0-or-later
+ * License: MIT OR PMPL-1.0-or-later
  * SPDX-License-Identifier: PMPL-1.0-or-later
  * SPDX-FileCopyrightText: 2024-2026 Hyperpolymath
  */
