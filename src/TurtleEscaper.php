@@ -1,8 +1,8 @@
 <?php
 
 /**
- * SPDX-License-Identifier: MIT OR AGPL-3.0-or-later
- * SPDX-FileCopyrightText: 2024-2025 Hyperpolymath
+ * SPDX-License-Identifier: MPL-2.0
+ * SPDX-FileCopyrightText: 2024-2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
  */
 
 declare(strict_types=1);

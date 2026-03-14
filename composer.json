@@ -2,7 +2,7 @@
     "name": "hyperpolymath/php-aegis",
     "description": "PHP security and hardening toolkit - input validation, sanitization, XSS prevention, WordPress integration, and IndieWeb protocol security",
     "type": "library",
-    "license": "MIT",
+    "license": "MPL-2.0",
     "keywords": [
         "security",
         "validation",
