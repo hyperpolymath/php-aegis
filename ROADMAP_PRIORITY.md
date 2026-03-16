@@ -35,7 +35,7 @@ See [POSITIONING.md](POSITIONING.md) for full positioning strategy.
 **Goal**: Address compliance and differentiation issues immediately.
 
 ### 1.1 SPDX License Headers ✅
-- Add `SPDX-License-Identifier: MIT OR AGPL-3.0-or-later` to all PHP files
+- Add `SPDX-License-Identifier: MIT OR PMPL-1.0-or-later` to all PHP files
 - Add `SPDX-FileCopyrightText` with year and author
 
 ### 1.2 Static Methods
