@@ -24,7 +24,8 @@ on:
       - '.php-cs-fixer.dist.php'
       - '.github/workflows/php-lint.yml'
 
-permissions: read-all
+permissions:
+  contents: read
 
 env:
   PHP_VERSION: '8.3'
