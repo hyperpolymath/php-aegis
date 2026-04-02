@@ -25,6 +25,29 @@
 |PENDING
 |===
 
+== PORTFOLIO AUDIT ADDITIONS (2026-03-30)
+
+[cols="1,3,1"]
+|===
+|ID |Task |Status
+
+|A1
+|Align production-ready wording with executed validation evidence and actual release state
+|PENDING
+
+|A2
+|Publish an executable validation report for the headline XSS, SSRF, and coverage claims in the docs
+|PENDING
+
+|A3
+|Decide and document release posture: beta until Packagist publication and environment-backed validation are complete
+|PENDING
+
+|A4
+|Demote or remove non-executed 100% completion language where the remaining test work is still open
+|PENDING
+|===
+
 == SHOULD (Important - High Value)
 
 [cols="1,3,1"]

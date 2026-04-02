@@ -14,6 +14,18 @@ image:https://img.shields.io/badge/RSR-Compliant-gold.svg[RSR Compliant]
 
 **A PHP security and hardening toolkit providing input validation, sanitization, and security utilities.**
 
+== Current Status
+
+php-aegis is the nearest thing in this portfolio to a publishable security utility, but it is not yet a finished public release.
+
+* Core validation, sanitization, headers, and Turtle escaping are implemented.
+* Remaining work is concentrated in release evidence rather than broad architecture:
+** complete the remaining critical tests
+** execute and publish validation evidence for the headline claims
+** complete packaging and publication work
+
+Use link:PRIORITY.adoc[PRIORITY.adoc] and link:validation/FINDINGS-AND-RECOMMENDATIONS.md[validation/FINDINGS-AND-RECOMMENDATIONS.md] together when judging readiness.
+
 == Overview
 
 php-aegis provides a collection of security-focused utilities for PHP applications. Named after the mythological shield of Zeus, it aims to protect your applications from common web vulnerabilities.
@@ -39,8 +51,8 @@ See link:POSITIONING.md[POSITIONING.md] for detailed guidance.
 * **Input Validation** - Strict validation for emails, URLs, IPs, UUIDs, and more
 * **Context-Aware Sanitization** - HTML, JS, CSS, URL, and JSON output escaping
 * **Security Headers** - Easy CSP, HSTS, X-Frame-Options, and more
-* **Rate Limiting** - Token bucket algorithm with file/memory backends
-* **IndieWeb Security** - Micropub, IndieAuth, Webmention with SSRF prevention
+* **Rate Limiting** - Planned and partially documented, but not yet a release-complete core feature
+* **IndieWeb Security** - Important roadmap area; implementation and validation depth still need to catch up to the docs
 * **RDF/Turtle Escaping** - Unique W3C-compliant semantic web security (no other PHP lib does this)
 * **Cerro Torre Integration** - Verified container packaging with cryptographic provenance
 * **WordPress Integration** - 23 adapter functions + MU-plugin
@@ -62,12 +74,16 @@ php-aegis follows the principle that security should be:
 
 == Installation
 
-=== Via Composer
+=== From Source
 
 [source,bash]
 ----
-composer require hyperpolymath/php-aegis
+git clone https://github.com/hyperpolymath/php-aegis.git
+cd php-aegis
+composer install
 ----
+
+Packagist publication is still pending. Do not assume `composer require hyperpolymath/php-aegis` works until the release and publication tasks in link:PRIORITY.adoc[PRIORITY.adoc] are complete.
 
 === Requirements
 
