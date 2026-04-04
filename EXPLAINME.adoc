@@ -1,25 +1,196 @@
 // SPDX-License-Identifier: PMPL-1.0-or-later
-= php-aegis — Show Me The Receipts
+// SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= php-aegis — PHP Security Toolkit — Show Me The Receipts
 :toc:
 :icons: font
 
-The README makes claims. This file backs them up.
+The README makes claims. This file backs them up. php-aegis is a PHP 8.1+
+security toolkit: input validation, context-aware sanitization, security headers,
+and (uniquely) W3C-compliant RDF/Turtle escaping. Named after the mythological
+shield of Zeus.
+
+== Claim: Zero-dependency, type-safe, context-aware output escaping
 
 [quote, README]
 ____
-See link:POSITIONING.md[POSITIONING.md] for detailed guidance.
+A PHP security and hardening toolkit providing input validation, sanitization,
+and security utilities. Zero Dependencies — core library has no external
+dependencies. Type Safety — full strict_types enforcement throughout.
+Context-Aware Sanitization — HTML, JS, CSS, URL, and JSON output escaping.
 ____
 
-== File Map
+Every source file opens with `declare(strict_types=1)`. The `Validator` class
+(`src/Validator.php`) uses only PHP built-ins — `filter_var`, `preg_match`,
+`parse_url` — with no Composer runtime dependencies. `Sanitizer::html()` calls
+`htmlspecialchars($input, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')` with explicit
+charset enforcement. `Sanitizer::js()` escapes to Unicode escape sequences
+(`\uXXXX`) for characters outside the safe printable ASCII set. `Sanitizer::css()`
+strips everything outside alphanumeric and safe CSS punctuation. The `Headers`
+class (`src/Headers.php`) calls PHP's `header()` function and `Headers::secure()`
+is a single-call method that sets CSP, HSTS, X-Frame-Options, Referrer-Policy,
+Permissions-Policy, and removes `X-Powered-By` and `Server` headers in one
+invocation.
+
+**Caveat:** "Zero dependencies" applies to the runtime library. The dev toolchain
+(PHPUnit, PHPStan, php-cs-fixer) are Composer dev-dependencies. The library does
+not handle SQL injection prevention (use PDO prepared statements), CSRF (use
+framework tokens), authentication, or encryption — these are explicit non-goals
+documented in the README's "What php-aegis Does NOT Do" section.
+
+- Validator: `src/Validator.php`
+- Sanitizer: `src/Sanitizer.php`
+- Headers: `src/Headers.php`
+- Tests: `tests/` (PHPUnit)
+
+== Claim: RDF/Turtle escaping — a unique differentiator with no other PHP library equivalent
+
+[quote, README]
+____
+RDF/Turtle Escaping — unique W3C-compliant semantic web security (no other PHP
+lib does this). Best for: Semantic web applications (RDF/Turtle escaping —
+unique to php-aegis).
+____
+
+`TurtleEscaper` (`src/TurtleEscaper.php`) implements W3C Turtle 1.1 string and
+IRI escaping. `TurtleEscaper::string()` escapes the characters required by the
+Turtle grammar: backslash, double-quote, newlines, carriage returns, tabs, and
+the extended escape sequences `\t \b \n \r \f`. `TurtleEscaper::iri()` validates
+IRI structure and percent-encodes characters that are invalid in IRIs.
+`TurtleEscaper::literal()` wraps a string in Turtle literal syntax with optional
+language tag (`"value"@en`) or datatype (`"value"^^xsd:type`).
+`TurtleEscaper::triple()` builds a complete subject-predicate-object triple
+string ending with ` .`. Without this escaping, user-supplied strings injected
+into Turtle documents would break the RDF serialisation or permit injection of
+arbitrary triples — a real attack surface in IndieWeb and Linked Data
+applications.
+
+**Caveat:** The IndieWeb integration work (Micropub, IndieAuth, Webmention
+helpers) is on the roadmap but not yet complete. The `src/IndieWeb/` directory
+exists but implementation and validation depth are noted in the README as needing
+to catch up to the design documentation.
+
+- Implementation: `src/TurtleEscaper.php`
+- IndieWeb stubs: `src/IndieWeb/`
+- Related: `HANDOVER_SANCTIFY.md` (integration notes with sanctify-php)
+
+== Dogfooded Across The Account
 
 [cols="1,2"]
 |===
-| Path | What's There
+| Technology | Also Used In
 
-| `src/` | Source code
-| `test(s)/` | Test suite
+| **PHP 8.1+ security tooling** | https://github.com/hyperpolymath/sanctify-php[sanctify-php]
+  (static analysis companion), https://github.com/hyperpolymath/proof-of-work[proof-of-work]
+  (spam prevention), the NUJ and LCB websites (production PHP deployments)
+| **WordPress adapter pattern** | `src/WordPress/` adapter (23 functions + MU-plugin)
+  mirrors the adapter architecture in https://github.com/hyperpolymath/project-wharf[project-wharf]
+  (`adapters/wordpress-wharf/`)
+| **Semantic web / RDF** | RDF tooling appears in
+  https://github.com/hyperpolymath/rrecord-verity[rrecord-verity] and the
+  IndieWeb stack across the account
+| **PHPStan + PHPUnit** | Standard PHP quality tooling in this repo and
+  https://github.com/hyperpolymath/sanctify-php[sanctify-php]
 |===
 
-== Questions?
+== File Map
 
-Open an issue or reach out directly — happy to explain anything in more detail.
+[cols="1,3"]
+|===
+| Path | What's There
+
+| `src/Validator.php`
+| Input validation. All methods static. Covers: email, URL, HTTPS-URL, IPv4,
+  IPv6, UUID, slug, JSON, integer (with range), domain, hostname, semver,
+  ISO 8601, hex colour, null-byte detection, safe filename check, printable-ASCII
+  check. Uses `filter_var` and `preg_match` with no external deps.
+
+| `src/Sanitizer.php`
+| Context-aware output escaping. All methods static. Contexts: HTML
+  (`htmlspecialchars` + UTF-8), JS (Unicode escape sequences), CSS (allowlist
+  chars only), URL (`rawurlencode`), JSON (`json_encode` with flags), filename
+  (strip path separators and null bytes).
+
+| `src/Headers.php`
+| Security headers. `Headers::secure()` is the single-call hardening method.
+  Individual methods: `contentSecurityPolicy()`, `strictTransportSecurity()`,
+  `frameOptions()`, `referrerPolicy()`, `permissionsPolicy()`,
+  `removeInsecureHeaders()`.
+
+| `src/TurtleEscaper.php`
+| W3C Turtle 1.1 escaping. Methods: `string()`, `iri()`, `literal()`,
+  `triple()`. Unique in the PHP ecosystem.
+
+| `src/IndieWeb/`
+| IndieWeb helpers (Micropub, IndieAuth, Webmention). Partially implemented.
+
+| `src/RateLimit/`
+| Rate limiting (documented in roadmap; not yet release-complete).
+
+| `src/WordPress/`
+| WordPress integration: 23 adapter functions and an MU-plugin for drop-in
+  use in WordPress environments.
+
+| `composer.json`
+| Project manifest. `require` section is empty (zero runtime deps).
+  `require-dev`: phpunit, phpstan, php-cs-fixer.
+
+| `phpstan.neon`
+| PHPStan configuration. Level 8 (strict) analysis.
+
+| `phpunit.xml`
+| PHPUnit test configuration.
+
+| `manifests/`
+| Container and deployment manifests.
+
+| `docs/`
+| Design documents, positioning guide, validation findings.
+
+| `PRIORITY.adoc`
+| Ordered list of remaining work before public release.
+
+| `HANDOVER_SANCTIFY.md`
+| Integration guide for teams using both php-aegis and sanctify-php.
+
+| `PHP_AEGIS_ANALYSIS_SUMMARY.md`
+| Analysis summary of current feature completeness.
+
+| `PHP_AEGIS_DEVELOPMENT_PLAN.md`
+| Development plan with phase milestones.
+
+| `validation/FINDINGS-AND-RECOMMENDATIONS.md`
+| Validation evidence document. Use alongside `PRIORITY.adoc` to judge
+  release readiness.
+
+| `.machine_readable/6a2/`
+| A2ML checkpoint files: STATE, META, ECOSYSTEM, AGENTIC, NEUROSYM, PLAYBOOK.
+|===
+
+== Checking It
+
+[source,bash]
+----
+# Install dev deps
+composer install
+
+# Run tests
+just test
+# or: vendor/bin/phpunit
+
+# Static analysis (PHPStan level 8)
+just analyze
+# or: vendor/bin/phpstan analyse src
+
+# Check code style
+just lint
+# or: vendor/bin/php-cs-fixer fix --dry-run
+----
+
+== Honest Status
+
+v0.1.1 is feature-complete for the core: validation, sanitization, headers,
+and Turtle escaping. The remaining work before a public Packagist release
+is concentrated in test completeness, publication validation evidence, and
+the IndieWeb/rate-limiting roadmap items. See `PRIORITY.adoc` for the
+ordered task list and `validation/FINDINGS-AND-RECOMMENDATIONS.md` for the
+evidence gap analysis.
