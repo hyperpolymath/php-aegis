@@ -1,5 +1,7 @@
 # php-aegis justfile
 
+import? "contractile.just"
+
 default:
     @just --list
 
