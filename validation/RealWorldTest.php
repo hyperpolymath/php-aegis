@@ -1,6 +1,6 @@
 <?php
 /**
- * SPDX-License-Identifier: PMPL-1.0-or-later
+ * SPDX-License-Identifier: MPL-2.0
  * Real-world validation test suite for php-aegis
  *
  * Tests php-aegis integration with popular WordPress plugins and themes

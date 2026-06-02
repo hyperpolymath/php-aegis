@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * SPDX-License-Identifier: PMPL-1.0-or-later
+ * SPDX-License-Identifier: MPL-2.0
  * CLI runner for php-aegis real-world validation tests
  */
 

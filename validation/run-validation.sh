@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 # Real-world validation runner for php-aegis
 #
 # Tests php-aegis against actual WordPress installations
@@ -119,7 +119,7 @@ install_phpageis() {
  * Plugin Name: php-aegis Security
  * Description: Security utilities for WordPress
  * Version: 0.2.0
- * SPDX-License-Identifier: PMPL-1.0-or-later
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 // Load php-aegis classes
