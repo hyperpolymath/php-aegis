@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * SPDX-License-Identifier: PMPL-1.0-or-later
+ * SPDX-License-Identifier: MPL-2.0
  * Contact Form 7 XSS prevention test
  *
  * Tests that php-aegis sanitization prevents XSS in Contact Form 7 submissions

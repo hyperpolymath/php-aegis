@@ -163,7 +163,7 @@ vordr logs php-aegis-wp
 Create `docker-compose.yml` (Svalinn-compatible):
 
 ```yaml
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 # php-aegis WordPress Stack (Svalinn/Vörðr)
 
 version: "3.9"
