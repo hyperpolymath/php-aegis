@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SPDX-License-Identifier: MIT OR PMPL-1.0-or-later
+ * SPDX-License-Identifier: MPL-2.0 OR PMPL-1.0-or-later
  * SPDX-FileCopyrightText: 2024-2025 Hyperpolymath
  */
 

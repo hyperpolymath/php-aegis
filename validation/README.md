@@ -258,4 +258,4 @@ chmod +x validation/*.sh validation/*.php
 
 ## License
 
-SPDX-License-Identifier: MPL-2.0-or-later
+SPDX-License-Identifier: CC-BY-SA-4.0

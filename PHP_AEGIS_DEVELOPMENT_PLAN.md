@@ -61,7 +61,7 @@ Create `src/WordPress/Adapter.php`:
 
 ```php
 <?php
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 
 declare(strict_types=1);
 
@@ -140,7 +140,7 @@ Create `docs/wordpress/aegis-mu-plugin.php`:
  * Plugin Name: php-aegis Security Enhancements
  * Description: Adds php-aegis security functions to WordPress
  * Version: 0.2.0
- * SPDX-License-Identifier: MPL-2.0
+ * SPDX-License-Identifier: CC-BY-SA-4.0
  */
 
 declare(strict_types=1);
@@ -168,7 +168,7 @@ Create `tests/WordPress/AdapterTest.php`:
 
 ```php
 <?php
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 
 declare(strict_types=1);
 
@@ -312,7 +312,7 @@ Create `src/IndieWeb/Micropub.php`:
 
 ```php
 <?php
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 
 declare(strict_types=1);
 
@@ -417,7 +417,7 @@ Create `src/IndieWeb/IndieAuth.php`:
 
 ```php
 <?php
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 
 declare(strict_types=1);
 
@@ -469,7 +469,7 @@ Create `src/IndieWeb/Webmention.php`:
 
 ```php
 <?php
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 
 declare(strict_types=1);
 
@@ -559,7 +559,7 @@ Create `src/RateLimit/RateLimitStore.php`:
 
 ```php
 <?php
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 
 declare(strict_types=1);
 
