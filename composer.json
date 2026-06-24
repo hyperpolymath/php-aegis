@@ -41,7 +41,10 @@
     "autoload": {
         "psr-4": {
             "PhpAegis\\": "src/"
-        }
+        },
+        "files": [
+            "src/WordPress/Adapter.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

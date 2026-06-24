@@ -71,7 +71,7 @@ return (new PhpCsFixer\Config())
 
         // Control structures
         'no_unneeded_control_parentheses' => true,
-        'no_unneeded_curly_braces' => true,
+        'no_unneeded_braces' => true,
         'yoda_style' => [
             'equal' => false,
             'identical' => false,
@@ -205,7 +205,6 @@ return (new PhpCsFixer\Config())
         ],
 
         // Security-conscious rules
-        'no_eval' => true,  // Warn about eval() usage
         'random_api_migration' => true,  // Use random_int/random_bytes
         'native_function_invocation' => [
             'include' => ['@compiler_optimized'],

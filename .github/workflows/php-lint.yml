@@ -177,8 +177,11 @@ jobs:
         run: |
           FOUND=0
 
-          # Dangerous execution functions
-          DANGEROUS=$(grep -rEn 'eval\s*\(|exec\s*\(|system\s*\(|passthru\s*\(|shell_exec\s*\(|proc_open\s*\(|popen\s*\(' \
+          # Dangerous execution functions.
+          # Word boundaries (\b) are required so legitimate functions whose
+          # names merely END in a dangerous token are not flagged, e.g.
+          # curl_exec() (HTTP, not command execution) must NOT match \bexec\(.
+          DANGEROUS=$(grep -rEn '\beval\s*\(|\bexec\s*\(|\bsystem\s*\(|\bpassthru\s*\(|\bshell_exec\s*\(|\bproc_open\s*\(|\bpopen\s*\(' \
             --include="*.php" src/ 2>/dev/null || true)
           if [ -n "$DANGEROUS" ]; then
             echo "::error::Dangerous execution functions found:"
@@ -186,8 +189,13 @@ jobs:
             FOUND=1
           fi
 
-          # Backtick execution
-          BACKTICKS=$(grep -rEn '`[^`]*\$' --include="*.php" src/ 2>/dev/null || true)
+          # Backtick (shell) execution with variable interpolation.
+          # Anchor on the OPENING backtick of a shell-exec operator, then drop
+          # lines where the backtick is a literal character inside a quoted
+          # string/regex (this security library escapes the backtick char in
+          # its Turtle/URI validators, which is legitimate, not shell exec).
+          BACKTICKS=$(grep -rEn '(=|\(|\breturn\b|\becho\b)\s*`[^`]*\$[^`]*`' --include="*.php" src/ 2>/dev/null \
+            | grep -vE "['\"][^'\"]*\`" || true)
           if [ -n "$BACKTICKS" ]; then
             echo "::error::Backtick execution with variables found:"
             echo "$BACKTICKS"

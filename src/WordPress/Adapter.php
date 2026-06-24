@@ -7,7 +7,11 @@
 
 declare(strict_types=1);
 
-namespace PhpAegis\WordPress;
+// NOTE: These WordPress-style helpers live in the GLOBAL namespace on purpose,
+// mirroring WordPress's own global functions (esc_html(), esc_attr(), ...).
+// Callers invoke them unqualified (aegis_html(...)) and rely on PHP's global
+// function fallback, so they must not be namespaced. The `use` imports below
+// keep the underlying class references (Sanitizer::html, etc.) resolvable.
 
 use PhpAegis\Validator;
 use PhpAegis\Sanitizer;
