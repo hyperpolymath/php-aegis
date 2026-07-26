@@ -25,6 +25,7 @@ on:
       - '.github/workflows/php-lint.yml'
 
 permissions:
+  actions: read
   contents: read
 
 env:
