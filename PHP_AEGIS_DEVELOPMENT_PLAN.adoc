@@ -1,65 +1,66 @@
-# php-aegis Development Plan
-**Created**: 2026-01-22
-**Project Phase**: Active Development
-**Current Completion**: 65%
-**Target Completion**: 95% (Production Ready)
+== php-aegis Development Plan
 
----
+*Created*: 2026-01-22 *Project Phase*: Active Development *Current
+Completion*: 65% *Target Completion*: 95% (Production Ready)
 
-## Executive Summary
+'''''
 
-php-aegis is a PHP 8.1+ security and hardening toolkit providing input validation, sanitization, and security utilities. This plan outlines the path from 65% to 95%+ completion with production-ready status.
+=== Executive Summary
 
-### Current State
+php-aegis is a PHP 8.1+ security and hardening toolkit providing input
+validation, sanitization, and security utilities. This plan outlines the
+path from 65% to 95%+ completion with production-ready status.
 
-**Working Features** (65% complete):
-- ✅ Validator class (17 methods): email, URL, IP, UUID, slug, JSON, filename safety, semver, ISO 8601, hex colors
-- ✅ Sanitizer class (10 methods): HTML, JS, CSS, URL, JSON, stripTags, filename, removeNullBytes
-- ✅ **TurtleEscaper class** (UNIQUE VALUE): W3C-compliant RDF Turtle escaping - no other PHP library does this
-- ✅ Headers class: CSP, HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy
-- ✅ Crypto utilities: Cryptographic functions and secure random generation
-- ✅ Comprehensive test suite: 4 test files (67KB), PHPUnit configured
-- ✅ Static methods throughout (no instance state needed)
-- ✅ SPDX license headers on all files
-- ✅ Composer package (MIT license, PHP 8.1+ requirement)
+==== Current State
 
-**Code Metrics**:
-- Total lines: 3,173
-- Source files: 5 (Validator.php, Sanitizer.php, Headers.php, TurtleEscaper.php, Crypto.php)
-- Test files: 4 (ValidatorTest.php, SanitizerTest.php, HeadersTest.php, TurtleEscaperTest.php)
-- Dependencies: zero runtime dependencies
+*Working Features* (65% complete): - ✅ Validator class (17 methods):
+email, URL, IP, UUID, slug, JSON, filename safety, semver, ISO 8601, hex
+colors - ✅ Sanitizer class (10 methods): HTML, JS, CSS, URL, JSON,
+stripTags, filename, removeNullBytes - ✅ *TurtleEscaper class* (UNIQUE
+VALUE): W3C-compliant RDF Turtle escaping - no other PHP library does
+this - ✅ Headers class: CSP, HSTS, X-Frame-Options, Referrer-Policy,
+Permissions-Policy - ✅ Crypto utilities: Cryptographic functions and
+secure random generation - ✅ Comprehensive test suite: 4 test files
+(67KB), PHPUnit configured - ✅ Static methods throughout (no instance
+state needed) - ✅ SPDX license headers on all files - ✅ Composer
+package (MIT license, PHP 8.1+ requirement)
 
-### Gap Analysis
+*Code Metrics*: - Total lines: 3,173 - Source files: 5 (Validator.php,
+Sanitizer.php, Headers.php, TurtleEscaper.php, Crypto.php) - Test files:
+4 (ValidatorTest.php, SanitizerTest.php, HeadersTest.php,
+TurtleEscaperTest.php) - Dependencies: zero runtime dependencies
 
-**Critical Blockers** (Medium Priority):
-1. WordPress integration (0%) - Adapter functions, mu-plugin pattern
-2. sanctify-php coordination (0%) - Safe sink recognition
-3. Packagist publication (0%) - Not published yet
+==== Gap Analysis
+
+*Critical Blockers* (Medium Priority): 1. WordPress integration (0%) -
+Adapter functions, mu-plugin pattern 2. sanctify-php coordination (0%) -
+Safe sink recognition 3. Packagist publication (0%) - Not published yet
 4. Real-world validation (0%) - No test integrations
 
-**Feature Gaps**:
-1. IndieWeb security (0%) - Micropub, IndieAuth, Webmention validators
-2. Rate limiting (0%) - Token bucket implementation
-3. Framework adapters (0%) - Laravel service provider, Symfony bundle
+*Feature Gaps*: 1. IndieWeb security (0%) - Micropub, IndieAuth,
+Webmention validators 2. Rate limiting (0%) - Token bucket
+implementation 3. Framework adapters (0%) - Laravel service provider,
+Symfony bundle
 
-**Documentation Gaps** (30% complete):
-1. API reference incomplete
-2. WordPress integration guide missing
-3. IndieWeb examples missing
-4. Deployment guide incomplete
+*Documentation Gaps* (30% complete): 1. API reference incomplete 2.
+WordPress integration guide missing 3. IndieWeb examples missing 4.
+Deployment guide incomplete
 
----
+'''''
 
-## Development Roadmap (65% → 95%)
+=== Development Roadmap (65% → 95%)
 
-### Phase 1: WordPress Integration (65% → 72%)
+==== Phase 1: WordPress Integration (65% → 72%)
 
-**Goal**: Enable seamless WordPress integration with wrapper functions and best practices guide.
+*Goal*: Enable seamless WordPress integration with wrapper functions and
+best practices guide.
 
-#### 1.1 WordPress Adapter Functions
-Create `src/WordPress/Adapter.php`:
+===== 1.1 WordPress Adapter Functions
 
-```php
+Create `+src/WordPress/Adapter.php+`:
+
+[source,php]
+----
 <?php
 // SPDX-License-Identifier: CC-BY-SA-4.0
 
@@ -129,12 +130,14 @@ if (!function_exists('aegis_send_security_headers')) {
         \PhpAegis\Headers::secure();
     }
 }
-```
+----
 
-#### 1.2 WordPress MU-Plugin Template
-Create `docs/wordpress/aegis-mu-plugin.php`:
+===== 1.2 WordPress MU-Plugin Template
 
-```php
+Create `+docs/wordpress/aegis-mu-plugin.php+`:
+
+[source,php]
+----
 <?php
 /**
  * Plugin Name: php-aegis Security Enhancements
@@ -161,12 +164,14 @@ add_action('send_headers', function () {
         \PhpAegis\Headers::secure();
     }
 });
-```
+----
 
-#### 1.3 WordPress Integration Tests
-Create `tests/WordPress/AdapterTest.php`:
+===== 1.3 WordPress Integration Tests
 
-```php
+Create `+tests/WordPress/AdapterTest.php+`:
+
+[source,php]
+----
 <?php
 // SPDX-License-Identifier: CC-BY-SA-4.0
 
@@ -197,12 +202,14 @@ class AdapterTest extends TestCase
         $this->assertStringContainsString('"Hello \\"World\\""@en', $output);
     }
 }
-```
+----
 
-#### 1.4 WordPress Documentation
-Create `docs/wordpress/WORDPRESS_INTEGRATION.md`:
+===== 1.4 WordPress Documentation
 
-```markdown
+Create `+docs/wordpress/WORDPRESS_INTEGRATION.md+`:
+
+[source,markdown]
+----
 # WordPress Integration Guide
 
 ## Installation
@@ -211,23 +218,28 @@ Create `docs/wordpress/WORDPRESS_INTEGRATION.md`:
 ```bash
 cd wp-content/mu-plugins
 composer require hyperpolymath/php-aegis
-```
+----
 
-### Method 2: Manual Installation
-Download and place in `wp-content/mu-plugins/php-aegis/`
+==== Method 2: Manual Installation
 
-## Usage in Themes
+Download and place in `+wp-content/mu-plugins/php-aegis/+`
 
-### Basic Sanitization
-```php
+=== Usage in Themes
+
+==== Basic Sanitization
+
+[source,php]
+----
 <?php
 // In template files
 <h1><?= aegis_html($post_title) ?></h1>
 <input value="<?= aegis_attr($user_input) ?>">
-```
+----
 
-### RDF/Turtle Output (Unique Feature!)
-```php
+==== RDF/Turtle Output (Unique Feature!)
+
+[source,php]
+----
 <?php
 // For semantic themes outputting Turtle
 header('Content-Type: text/turtle; charset=utf-8');
@@ -236,31 +248,36 @@ $subject = get_permalink();
 $label = get_the_title();
 
 echo aegis_turtle_literal($subject, 'en');
-```
+----
 
-### Security Headers
-```php
+==== Security Headers
+
+[source,php]
+----
 <?php
 // In functions.php
 add_action('send_headers', function () {
     aegis_send_security_headers();
 });
-```
+----
 
-## When to Use php-aegis vs WordPress Functions
+=== When to Use php-aegis vs WordPress Functions
 
-| Scenario | Use WordPress | Use php-aegis |
-|----------|--------------|--------------|
-| HTML output | `esc_html()` | `aegis_html()` |
-| Attribute output | `esc_attr()` | `aegis_attr()` |
-| **RDF/Turtle output** | ❌ Not available | ✅ `aegis_turtle_literal()` |
-| **Security headers** | ❌ Manual | ✅ `aegis_send_security_headers()` |
-| UUID validation | ❌ Not built-in | ✅ `aegis_validate_uuid()` |
-| Semantic versioning | ❌ Not built-in | ✅ `Validator::semver()` |
+[width="100%",cols="28%,36%,36%",options="header",]
+|===
+|Scenario |Use WordPress |Use php-aegis
+|HTML output |`+esc_html()+` |`+aegis_html()+`
+|Attribute output |`+esc_attr()+` |`+aegis_attr()+`
+|*RDF/Turtle output* |❌ Not available |✅ `+aegis_turtle_literal()+`
+|*Security headers* |❌ Manual |✅ `+aegis_send_security_headers()+`
+|UUID validation |❌ Not built-in |✅ `+aegis_validate_uuid()+`
+|Semantic versioning |❌ Not built-in |✅ `+Validator::semver()+`
+|===
 
-## Real-World Example: Semantic Blog Theme
+=== Real-World Example: Semantic Blog Theme
 
-```php
+[source,php]
+----
 <?php
 /**
  * Template: Single post with RDF metadata
@@ -289,8 +306,9 @@ add_action('template_redirect', function () {
         exit;
     }
 });
-```
-```
+----
+
+....
 
 **Completion Criteria**:
 - [ ] WordPress adapter functions implemented
@@ -410,12 +428,14 @@ final class Micropub
         return $sanitized;
     }
 }
-```
+....
 
-#### 2.2 IndieAuth Token Validator
-Create `src/IndieWeb/IndieAuth.php`:
+==== 2.2 IndieAuth Token Validator
 
-```php
+Create `+src/IndieWeb/IndieAuth.php+`:
+
+[source,php]
+----
 <?php
 // SPDX-License-Identifier: CC-BY-SA-4.0
 
@@ -462,12 +482,14 @@ final class IndieAuth
         return $redirectHost === $clientHost;
     }
 }
-```
+----
 
-#### 2.3 Webmention SSRF Prevention
-Create `src/IndieWeb/Webmention.php`:
+==== 2.3 Webmention SSRF Prevention
 
-```php
+Create `+src/IndieWeb/Webmention.php+`:
+
+[source,php]
+----
 <?php
 // SPDX-License-Identifier: CC-BY-SA-4.0
 
@@ -533,31 +555,35 @@ final class Webmention
         return $host === $yourDomain;
     }
 }
-```
+----
 
-#### 2.4 IndieWeb Tests
-Create `tests/IndieWeb/MicropubTest.php`, `IndieAuthTest.php`, `WebmentionTest.php`.
+==== 2.4 IndieWeb Tests
 
-#### 2.5 IndieWeb Documentation
-Create `docs/indieweb/INDIEWEB_SECURITY.md` with comprehensive examples.
+Create `+tests/IndieWeb/MicropubTest.php+`, `+IndieAuthTest.php+`,
+`+WebmentionTest.php+`.
 
-**Completion Criteria**:
-- [ ] Micropub validator implemented
-- [ ] IndieAuth validator implemented
-- [ ] Webmention SSRF prevention implemented
-- [ ] IndieWeb tests passing (100% coverage)
-- [ ] IndieWeb documentation complete
+==== 2.5 IndieWeb Documentation
 
----
+Create `+docs/indieweb/INDIEWEB_SECURITY.md+` with comprehensive
+examples.
 
-### Phase 3: Rate Limiting (78% → 83%)
+*Completion Criteria*: - [ ] Micropub validator implemented - [ ]
+IndieAuth validator implemented - [ ] Webmention SSRF prevention
+implemented - [ ] IndieWeb tests passing (100% coverage) - [ ] IndieWeb
+documentation complete
 
-**Goal**: Provide rate limiting without external dependencies.
+'''''
 
-#### 3.1 Token Bucket Interface
-Create `src/RateLimit/RateLimitStore.php`:
+==== Phase 3: Rate Limiting (78% → 83%)
 
-```php
+*Goal*: Provide rate limiting without external dependencies.
+
+===== 3.1 Token Bucket Interface
+
+Create `+src/RateLimit/RateLimitStore.php+`:
+
+[source,php]
+----
 <?php
 // SPDX-License-Identifier: CC-BY-SA-4.0
 
@@ -577,199 +603,206 @@ interface RateLimitStore
      */
     public function set(string $key, TokenBucket $bucket, int $ttl): void;
 }
-```
+----
 
-#### 3.2 Token Bucket Implementation
-Create `src/RateLimit/TokenBucket.php`, `MemoryStore.php`, `FileStore.php`.
+===== 3.2 Token Bucket Implementation
 
-#### 3.3 Rate Limiter
-Create `src/RateLimit/RateLimiter.php` with `attempt()`, `remaining()`, `resetAt()` methods.
+Create `+src/RateLimit/TokenBucket.php+`, `+MemoryStore.php+`,
+`+FileStore.php+`.
 
-**Completion Criteria**:
-- [ ] Token bucket implementation
-- [ ] Memory store (for development)
-- [ ] File store (for production without Redis)
-- [ ] Rate limiter with clear API
-- [ ] Comprehensive tests (edge cases, concurrency)
-- [ ] Documentation with examples
+===== 3.3 Rate Limiter
 
----
+Create `+src/RateLimit/RateLimiter.php+` with `+attempt()+`,
+`+remaining()+`, `+resetAt()+` methods.
 
-### Phase 4: Documentation Overhaul (83% → 90%)
+*Completion Criteria*: - [ ] Token bucket implementation - [ ] Memory
+store (for development) - [ ] File store (for production without Redis)
+- [ ] Rate limiter with clear API - [ ] Comprehensive tests (edge cases,
+concurrency) - [ ] Documentation with examples
 
-**Goal**: Comprehensive documentation for all audiences.
+'''''
 
-#### 4.1 API Reference
-Create `docs/api/API_REFERENCE.md`:
-- Complete reference for all classes and methods
-- Parameter descriptions with types
-- Return value documentation
-- Usage examples for each method
-- Security considerations
+==== Phase 4: Documentation Overhaul (83% → 90%)
 
-#### 4.2 User Guide
-Create `docs/user/USER_GUIDE.md`:
-- Installation methods (Composer, manual)
-- Quick start examples
-- Common use cases
-- Framework integration (WordPress, Laravel, Symfony)
-- Troubleshooting
+*Goal*: Comprehensive documentation for all audiences.
 
-#### 4.3 Security Guide
-Enhance `SECURE_DEFAULTS.md`:
-- OWASP Top 10 mapping (expand existing)
-- Real-world vulnerability examples
-- Secure coding patterns
-- CI/CD integration examples
+===== 4.1 API Reference
 
-#### 4.4 Integration Guides
-- WordPress: Comprehensive guide (expand Phase 1 docs)
-- Laravel: Service provider usage
-- Symfony: Bundle configuration
-- IndieWeb: Protocol implementations
+Create `+docs/api/API_REFERENCE.md+`: - Complete reference for all
+classes and methods - Parameter descriptions with types - Return value
+documentation - Usage examples for each method - Security considerations
 
-**Completion Criteria**:
-- [ ] API reference complete (100 pages)
-- [ ] User guide complete (50 pages)
-- [ ] Security guide enhanced (40 pages)
-- [ ] Integration guides for 3 frameworks
-- [ ] Code examples tested and verified
+===== 4.2 User Guide
 
----
+Create `+docs/user/USER_GUIDE.md+`: - Installation methods (Composer,
+manual) - Quick start examples - Common use cases - Framework
+integration (WordPress, Laravel, Symfony) - Troubleshooting
 
-### Phase 5: Real-World Validation (90% → 95%)
+===== 4.3 Security Guide
 
-**Goal**: Test php-aegis against real WordPress plugins/themes to validate effectiveness.
+Enhance `+SECURE_DEFAULTS.md+`: - OWASP Top 10 mapping (expand existing)
+- Real-world vulnerability examples - Secure coding patterns - CI/CD
+integration examples
 
-#### 5.1 Test Against WordPress Themes
-Create test integrations:
-1. Semantic blog theme (using TurtleEscaper)
-2. E-commerce theme (using security headers)
-3. Membership site theme (using validation)
+===== 4.4 Integration Guides
 
-#### 5.2 Test Against WordPress Plugins
-Create test integrations:
-1. Contact form plugin (validation + sanitization)
-2. IndieWeb plugin (Micropub + Webmention)
-3. API service plugin (rate limiting + headers)
+* WordPress: Comprehensive guide (expand Phase 1 docs)
+* Laravel: Service provider usage
+* Symfony: Bundle configuration
+* IndieWeb: Protocol implementations
 
-#### 5.3 Create Test Report
-Document:
-- Real vulnerabilities found and fixed
-- Performance metrics
-- False positive/negative analysis
-- Integration pain points
-- Recommendations for improvement
+*Completion Criteria*: - [ ] API reference complete (100 pages) - [ ]
+User guide complete (50 pages) - [ ] Security guide enhanced (40 pages)
+- [ ] Integration guides for 3 frameworks - [ ] Code examples tested and
+verified
 
-**Completion Criteria**:
-- [ ] Tested with 3 WordPress themes
-- [ ] Tested with 3 WordPress plugins
-- [ ] Created comprehensive test report
-- [ ] Documented all findings
-- [ ] Updated code based on feedback
+'''''
 
----
+==== Phase 5: Real-World Validation (90% → 95%)
 
-### Phase 6: Deployment & Publishing (95% → 100%)
+*Goal*: Test php-aegis against real WordPress plugins/themes to validate
+effectiveness.
 
-**Goal**: Make php-aegis easily accessible to all PHP developers.
+===== 5.1 Test Against WordPress Themes
 
-#### 6.1 Publish to Packagist
-- Register on packagist.org
-- Configure GitHub webhook for auto-updates
-- Add Packagist badge to README
+Create test integrations: 1. Semantic blog theme (using TurtleEscaper)
+2. E-commerce theme (using security headers) 3. Membership site theme
+(using validation)
 
-#### 6.2 Docker Image
-Create `Dockerfile` and publish to GHCR:
-```dockerfile
+===== 5.2 Test Against WordPress Plugins
+
+Create test integrations: 1. Contact form plugin (validation +
+sanitization) 2. IndieWeb plugin (Micropub + Webmention) 3. API service
+plugin (rate limiting + headers)
+
+===== 5.3 Create Test Report
+
+Document: - Real vulnerabilities found and fixed - Performance metrics -
+False positive/negative analysis - Integration pain points -
+Recommendations for improvement
+
+*Completion Criteria*: - [ ] Tested with 3 WordPress themes - [ ] Tested
+with 3 WordPress plugins - [ ] Created comprehensive test report - [ ]
+Documented all findings - [ ] Updated code based on feedback
+
+'''''
+
+==== Phase 6: Deployment & Publishing (95% → 100%)
+
+*Goal*: Make php-aegis easily accessible to all PHP developers.
+
+===== 6.1 Publish to Packagist
+
+* Register on packagist.org
+* Configure GitHub webhook for auto-updates
+* Add Packagist badge to README
+
+===== 6.2 Docker Image
+
+Create `+Dockerfile+` and publish to GHCR:
+
+[source,dockerfile]
+----
 FROM php:8.3-cli
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer global require hyperpolymath/php-aegis
-```
+----
 
-#### 6.3 GitHub Action
-Create `hyperpolymath/php-aegis-action` for CI integration:
-```yaml
+===== 6.3 GitHub Action
+
+Create `+hyperpolymath/php-aegis-action+` for CI integration:
+
+[source,yaml]
+----
 - uses: hyperpolymath/php-aegis-action@v1
   with:
     path: ./src
     report: aegis-report.txt
-```
+----
 
-#### 6.4 Pre-built Binaries
+===== 6.4 Pre-built Binaries
+
 Not applicable for PHP libraries (interpreted language).
 
-**Completion Criteria**:
-- [ ] Published to Packagist
-- [ ] Docker image published to GHCR
-- [ ] GitHub Action created and tested
-- [ ] Installation docs updated
-- [ ] Version 1.0.0 released
+*Completion Criteria*: - [ ] Published to Packagist - [ ] Docker image
+published to GHCR - [ ] GitHub Action created and tested - [ ]
+Installation docs updated - [ ] Version 1.0.0 released
 
----
+'''''
 
-## Success Metrics
+=== Success Metrics
 
-### Code Quality
-- [ ] 100% test coverage for core functionality
-- [ ] PHPStan level 9 (strict)
-- [ ] PHP-CS-Fixer (PSR-12 compliant)
-- [ ] Zero critical security issues (Psalm)
+==== Code Quality
 
-### Documentation
-- [ ] 200+ pages of documentation
-- [ ] 50+ code examples
-- [ ] 3+ framework integration guides
-- [ ] 10+ real-world use cases
+* [ ] 100% test coverage for core functionality
+* [ ] PHPStan level 9 (strict)
+* [ ] PHP-CS-Fixer (PSR-12 compliant)
+* [ ] Zero critical security issues (Psalm)
 
-### Adoption
-- [ ] 100+ Packagist installs/month
-- [ ] 50+ GitHub stars
-- [ ] 10+ contributors
-- [ ] 5+ integration examples
+==== Documentation
 
-### Security
-- [ ] Zero reported vulnerabilities in library itself
-- [ ] 10+ vulnerabilities prevented in user code
-- [ ] OWASP Top 10 coverage documented
+* [ ] 200+ pages of documentation
+* [ ] 50+ code examples
+* [ ] 3+ framework integration guides
+* [ ] 10+ real-world use cases
 
----
+==== Adoption
 
-## Timeline Philosophy
+* [ ] 100+ Packagist installs/month
+* [ ] 50+ GitHub stars
+* [ ] 10+ contributors
+* [ ] 5+ integration examples
 
-Per project guidelines, no time estimates are provided. Work proceeds based on:
-1. User demand (GitHub issues)
-2. Security criticality
-3. Contributor availability
+==== Security
+
+* [ ] Zero reported vulnerabilities in library itself
+* [ ] 10+ vulnerabilities prevented in user code
+* [ ] OWASP Top 10 coverage documented
+
+'''''
+
+=== Timeline Philosophy
+
+Per project guidelines, no time estimates are provided. Work proceeds
+based on: 1. User demand (GitHub issues) 2. Security criticality 3.
+Contributor availability
 
 Phases can be reordered based on community feedback.
 
----
+'''''
 
-## Key Differentiators
+=== Key Differentiators
 
 What makes php-aegis unique:
 
-1. **TurtleEscaper** - Only PHP library with W3C-compliant RDF Turtle escaping
-2. **Zero Dependencies** - Works everywhere PHP 8.1+ runs
-3. **Static Methods** - No instance state, easy drop-in usage
-4. **IndieWeb Focus** - First-class support for Micropub, IndieAuth, Webmention
-5. **Framework Gaps** - Provides what WordPress/Laravel/Symfony don't
+[arabic]
+. *TurtleEscaper* - Only PHP library with W3C-compliant RDF Turtle
+escaping
+. *Zero Dependencies* - Works everywhere PHP 8.1+ runs
+. *Static Methods* - No instance state, easy drop-in usage
+. *IndieWeb Focus* - First-class support for Micropub, IndieAuth,
+Webmention
+. *Framework Gaps* - Provides what WordPress/Laravel/Symfony don’t
 
----
+'''''
 
-## Integration with sanctify-php
+=== Integration with sanctify-php
 
-php-aegis (runtime) and sanctify-php (static analysis) are complementary:
+php-aegis (runtime) and sanctify-php (static analysis) are
+complementary:
 
-| Tool | Role | When Used |
-|------|------|-----------|
-| **php-aegis** | Runtime protection | During request handling |
-| **sanctify-php** | Static analysis | During development/CI |
+[cols=",,",options="header",]
+|===
+|Tool |Role |When Used
+|*php-aegis* |Runtime protection |During request handling
+|*sanctify-php* |Static analysis |During development/CI
+|===
 
-**Synergy**: sanctify-php should recognize php-aegis methods as "safe sinks" in taint analysis:
+*Synergy*: sanctify-php should recognize php-aegis methods as "`safe
+sinks`" in taint analysis:
 
-```haskell
+[source,haskell]
+----
 -- sanctify-php configuration
 safeSinks = [
   "PhpAegis\\Sanitizer::html",
@@ -778,16 +811,18 @@ safeSinks = [
   "PhpAegis\\TurtleEscaper::literal",
   "PhpAegis\\TurtleEscaper::iri"
 ]
-```
+----
 
----
+'''''
 
-## Related Projects
+=== Related Projects
 
-- **sanctify-php** - Static analysis for PHP security (finds the bugs)
-- **indieweb2-bastion** - Infrastructure-layer security (network/DNS/audit)
-- **wp-audit-toolkit** - WordPress security auditing
+* *sanctify-php* - Static analysis for PHP security (finds the bugs)
+* *indieweb2-bastion* - Infrastructure-layer security
+(network/DNS/audit)
+* *wp-audit-toolkit* - WordPress security auditing
 
----
+'''''
 
-*Development plan created 2026-01-22. Target: Production-ready php-aegis at 95%+ completion.*
+_Development plan created 2026-01-22. Target: Production-ready php-aegis
+at 95%+ completion._
