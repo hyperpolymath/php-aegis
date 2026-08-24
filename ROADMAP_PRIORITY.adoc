@@ -1,0 +1,386 @@
+== php-aegis Roadmap (Integration-Informed Priority)
+
+This roadmap is prioritized based on real-world integration experience
+with WordPress themes and plugins, reflecting lessons from
+wp-sinople-theme and Zotpress integrations.
+
+=== Strategic Positioning
+
+See POSITIONING.md for full positioning strategy.
+
+*Key insight*: WordPress (and Laravel, Symfony) already have
+comprehensive security APIs. php-aegis should:
+
+[arabic]
+. *Target non-framework PHP* - APIs, CLI tools, microservices
+. *Provide unique capabilities* - RDF/Turtle, security headers, extended
+validators
+. *Fill framework gaps* - What WordPress/Laravel/Symfony don’t provide
+
+*Do NOT prioritize*: Duplicating `+esc_html()+`, `+esc_attr()+`
+equivalents that frameworks already do well.
+
+=== Context: Integration Findings
+
+[width="100%",cols="60%,40%",options="header",]
+|===
+|Integration |Finding
+|wp-sinople-theme |RDF/Turtle escaping is unique value; basic
+sanitization duplicates WordPress
+
+|Zotpress plugin |Mature WP plugins already use core functions;
+php-aegis not needed for basic security
+|===
+
+*Prioritize features WordPress lacks*: - RDF/Turtle escaping ✅ -
+Security headers ✅ - Extended validators (UUID, IP, semver, etc.) ✅ -
+IndieWeb security (Micropub, IndieAuth) - Rate limiting without external
+dependencies
+
+'''''
+
+=== Phase 1: Foundation Fixes (v0.1.1)
+
+*Goal*: Address compliance and differentiation issues immediately.
+
+==== 1.1 SPDX License Headers ✅
+
+* Add `+SPDX-License-Identifier: CC-BY-SA-4.0 OR PMPL-1.0-or-later+` to
+all PHP files
+* Add `+SPDX-FileCopyrightText+` with year and author
+
+==== 1.2 Static Methods
+
+* Convert `+Validator+` and `+Sanitizer+` to use static methods
+* Rationale: No instance state needed, improves ergonomics
+* Before: `+(new Sanitizer())->html($input)+`
+* After: `+Sanitizer::html($input)+`
+
+==== 1.3 RDF/Turtle Escaping Module ✅
+
+* `+TurtleEscaper::string(string $input): string+` - Escape for Turtle
+string literals
+* `+TurtleEscaper::iri(string $uri): string+` - Escape/validate for
+Turtle IRIs
+* This is a *unique differentiator* - no other PHP library does this
+properly
+
+'''''
+
+=== Phase 2: Security Headers (v0.2.0)
+
+*Goal*: Provide value beyond WordPress built-ins.
+
+==== 2.1 Headers Class
+
+[source,php]
+----
+Headers::contentSecurityPolicy(array $directives): void
+Headers::strictTransportSecurity(int $maxAge, bool $subdomains = true): void
+Headers::xFrameOptions(string $value = 'DENY'): void
+Headers::xContentTypeOptions(): void  // nosniff
+Headers::referrerPolicy(string $policy = 'strict-origin-when-cross-origin'): void
+Headers::permissionsPolicy(array $permissions): void
+----
+
+==== 2.2 All-in-One Security Headers
+
+[source,php]
+----
+Headers::secure(): void  // Apply sensible defaults for all headers
+----
+
+==== Why This Matters
+
+* WordPress doesn’t provide header helpers
+* Frameworks often require manual configuration
+* This provides "`secure by default`" with one function call
+
+'''''
+
+=== Phase 3: Extended Validators (v0.3.0)
+
+*Goal*: Cover common validation needs with strict, type-safe
+implementations.
+
+==== 3.1 Network Validators
+
+[source,php]
+----
+Validator::ip(string $ip): bool  // IPv4 or IPv6
+Validator::ipv4(string $ip): bool
+Validator::ipv6(string $ip): bool
+Validator::cidr(string $cidr): bool
+Validator::hostname(string $host): bool
+Validator::domain(string $domain): bool
+----
+
+==== 3.2 Format Validators
+
+[source,php]
+----
+Validator::uuid(string $uuid): bool  // RFC 4122
+Validator::slug(string $slug): bool  // URL-safe slugs
+Validator::semver(string $version): bool  // Semantic versioning
+Validator::iso8601(string $date): bool  // ISO 8601 datetime
+Validator::json(string $json): bool  // Valid JSON
+----
+
+==== 3.3 Security Validators
+
+[source,php]
+----
+Validator::noNullBytes(string $input): bool
+Validator::printable(string $input): bool
+Validator::safeFilename(string $filename): bool  // No path traversal
+Validator::httpsUrl(string $url): bool  // Enforce HTTPS
+----
+
+'''''
+
+=== Phase 4: Context-Aware Sanitization (v0.4.0)
+
+*Goal*: Provide correct escaping for every output context.
+
+==== 4.1 Context Enum (PHP 8.1+)
+
+[source,php]
+----
+enum OutputContext: string {
+    case Html = 'html';
+    case HtmlAttribute = 'attr';
+    case JavaScript = 'js';
+    case Css = 'css';
+    case Url = 'url';
+    case Sql = 'sql';  // For display only, not query building
+    case Json = 'json';
+    case Turtle = 'turtle';  // RDF Turtle
+    case NTriples = 'ntriples';  // RDF N-Triples
+}
+----
+
+==== 4.2 Unified Escape Method
+
+[source,php]
+----
+Sanitizer::escape(string $input, OutputContext $context): string
+----
+
+==== 4.3 Specialized Methods
+
+[source,php]
+----
+Sanitizer::jsString(string $input): string  // Safe for JS string literals
+Sanitizer::cssString(string $input): string  // Safe for CSS values
+Sanitizer::urlEncode(string $input): string  // Proper URL encoding
+Sanitizer::jsonEncode(mixed $input): string  // Safe JSON with flags
+----
+
+'''''
+
+=== Phase 5: IndieWeb Security (v0.5.0)
+
+*Goal*: First-class support for IndieWeb/semantic web patterns.
+
+==== Related Project: indieweb2-bastion
+
+The
+https://github.com/hyperpolymath/indieweb2-bastion[indieweb2-bastion]
+repository provides infrastructure-layer security (bastion ingress,
+oblivious DNS, provenance graphs) that complements php-aegis at the
+application layer.
+
+*Architectural relationship*:
+
+....
+┌────────────────────────────────────────────────┐
+│  indieweb2-bastion  │  Infrastructure layer    │
+│  (network, audit)   │  Rate limiting, logging  │
+├─────────────────────┼──────────────────────────┤
+│  php-aegis          │  Application layer       │
+│  (this module)      │  Micropub, IndieAuth,    │
+│                     │  Webmention validation   │
+└────────────────────────────────────────────────┘
+....
+
+*Lessons from indieweb2-bastion*: - Use provenance-style tracking for
+Webmention verification chains - Apply bastion patterns for rate
+limiting endpoints - Consider audit logging as a first-class feature
+
+==== 5.1 Micropub Content Sanitizer
+
+[source,php]
+----
+Micropub::sanitizeContent(string $html, array $allowedTags = []): string
+Micropub::validateEntry(array $mf2): ValidationResult
+----
+
+==== 5.2 IndieAuth Helpers
+
+[source,php]
+----
+IndieAuth::verifyToken(string $token, string $endpoint): TokenResult
+IndieAuth::validateMe(string $url): bool  // Valid "me" URL
+IndieAuth::validateRedirectUri(string $uri, string $clientId): bool
+----
+
+==== 5.3 Webmention Validators
+
+[source,php]
+----
+Webmention::validateSource(string $url): bool  // Not internal IP
+Webmention::validateTarget(string $url, string $domain): bool
+----
+
+==== 5.4 SSRF Prevention
+
+[source,php]
+----
+// Prevent Webmention SSRF attacks
+Webmention::isInternalIp(string $ip): bool
+Webmention::resolveAndValidate(string $url): ValidationResult
+----
+
+'''''
+
+=== Phase 6: Rate Limiting (v0.6.0)
+
+*Goal*: Protect against abuse without external dependencies.
+
+==== 6.1 Token Bucket Implementation
+
+[source,php]
+----
+interface RateLimitStore {
+    public function get(string $key): ?TokenBucket;
+    public function set(string $key, TokenBucket $bucket, int $ttl): void;
+}
+
+class MemoryStore implements RateLimitStore { ... }
+class FileStore implements RateLimitStore { ... }
+class RedisStore implements RateLimitStore { ... }  // Optional
+class ApcuStore implements RateLimitStore { ... }   // Optional
+----
+
+==== 6.2 Rate Limiter
+
+[source,php]
+----
+$limiter = new RateLimiter(
+    store: new FileStore('/tmp/ratelimit'),
+    capacity: 100,  // requests
+    refillRate: 10, // per second
+);
+
+if (!$limiter->attempt($clientIp)) {
+    http_response_code(429);
+    exit;
+}
+----
+
+'''''
+
+=== Phase 7: Ecosystem Expansion (v0.7.0)
+
+*Goal*: Maximize adoption across PHP ecosystem.
+
+==== 7.1 Compatibility Package
+
+Create `+hyperpolymath/php-aegis-compat+` for PHP 7.4+ environments.
+
+See COMPATIBILITY.md for full strategy.
+
+[source,bash]
+----
+# PHP 7.4+ (legacy WordPress hosts)
+composer require hyperpolymath/php-aegis-compat
+
+# PHP 8.1+ (recommended)
+composer require hyperpolymath/php-aegis
+----
+
+==== 7.2 WordPress Adapter
+
+WordPress-style function wrappers:
+
+[source,php]
+----
+aegis_html($input)      // Maps to Sanitizer::html()
+aegis_attr($input)      // Maps to Sanitizer::attr()
+aegis_js($input)        // Maps to Sanitizer::js()
+aegis_url($input)       // Maps to Sanitizer::url()
+aegis_send_security_headers()  // Maps to Headers::secure()
+----
+
+==== 7.3 Laravel Service Provider
+
+[source,php]
+----
+// Auto-registered via package discovery
+PhpAegis\Laravel\AegisServiceProvider::class
+
+// Blade directive
+@aegis($userContent)
+
+// DI in controllers
+public function store(Sanitizer $sanitizer) { ... }
+----
+
+==== 7.4 Symfony Bundle
+
+[source,php]
+----
+// config/bundles.php
+PhpAegis\Symfony\AegisBundle::class => ['all' => true]
+
+// Twig filter
+{{ user_content|aegis_html }}
+----
+
+'''''
+
+=== Differentiation Strategy
+
+==== What WordPress Has (don’t duplicate)
+
+* `+esc_html()+`, `+esc_attr()+`, `+esc_url()+`, `+esc_js()+`
+* `+wp_kses()+`, `+wp_kses_post()+`
+* `+sanitize_*()+` functions
+* Nonce verification
+
+==== What php-aegis Provides (unique value)
+
+[cols=",,,,",options="header",]
+|===
+|Feature |WordPress |Laravel |Symfony |php-aegis
+|RDF/Turtle escaping |❌ |❌ |❌ |✅
+|Security headers helper |❌ |Partial |Partial |✅
+|IndieWeb validation |❌ |❌ |❌ |✅
+|Zero dependencies |N/A |❌ |❌ |✅
+|PHP 8.1+ strict types |❌ |❌ |❌ |✅
+|Rate limiting (no Redis) |❌ |❌ |❌ |✅
+|===
+
+'''''
+
+=== Success Metrics
+
+[arabic]
+. *Adoption*: Downloads on Packagist
+. *Integration*: Used in WordPress themes, Laravel packages
+. *Coverage*: CVE fixes attributable to php-aegis usage
+. *Community*: GitHub stars, issues, PRs
+
+'''''
+
+=== Timeline Philosophy
+
+Per project guidelines, no time estimates are provided. Work proceeds
+based on: 1. User demand (GitHub issues) 2. Security criticality 3.
+Contributor availability
+
+Phases can be reordered based on community feedback.
+
+'''''
+
+_This roadmap reflects lessons learned from real WordPress integration._

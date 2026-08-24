@@ -1,12 +1,14 @@
-# Cerro Torre Integration Guide
+== Cerro Torre Integration Guide
 
-## Overview
+=== Overview
 
-This guide explains how to deploy php-aegis WordPress using the **Verified Container Ecosystem**: Cerro Torre (builder), Vörðr (runtime), and Svalinn (gateway).
+This guide explains how to deploy php-aegis WordPress using the
+*Verified Container Ecosystem*: Cerro Torre (builder), Vörðr (runtime),
+and Svalinn (gateway).
 
-## Architecture
+=== Architecture
 
-```
+....
 ┌─────────────────────────────────────────────────────────────────┐
 │                    VERIFIED CONTAINER ECOSYSTEM                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -27,24 +29,34 @@ This guide explains how to deploy php-aegis WordPress using the **Verified Conta
 │                      php-aegis WordPress                          │
 │   Security Library + WordPress + Verified Container Package      │
 └───────────────────────────────────────────────────────────────────┘
-```
+....
 
-## Why Cerro Torre over Docker?
+=== Why Cerro Torre over Docker?
 
-| Feature | Cerro Torre | Docker |
-|---------|-------------|--------|
-| **Formal Verification** | Ada/SPARK verified tooling | No formal verification |
-| **Provenance** | Complete cryptographic chain | Limited provenance tracking |
-| **Governance** | Multi-stakeholder cooperative | Corporate-controlled |
-| **Security** | SELinux enforcing, threshold signing | Optional security features |
-| **Transparency** | Federated transparency logs | Centralized registry |
-| **Reproducibility** | Built-in reproducible builds | Manual configuration |
+[width="100%",cols="31%,43%,26%",options="header",]
+|===
+|Feature |Cerro Torre |Docker
+|*Formal Verification* |Ada/SPARK verified tooling |No formal
+verification
 
-## Prerequisites
+|*Provenance* |Complete cryptographic chain |Limited provenance tracking
 
-### 1. Install Cerro Torre
+|*Governance* |Multi-stakeholder cooperative |Corporate-controlled
 
-```bash
+|*Security* |SELinux enforcing, threshold signing |Optional security
+features
+
+|*Transparency* |Federated transparency logs |Centralized registry
+
+|*Reproducibility* |Built-in reproducible builds |Manual configuration
+|===
+
+=== Prerequisites
+
+==== 1. Install Cerro Torre
+
+[source,bash]
+----
 # Clone Cerro Torre
 git clone https://github.com/hyperpolymath/cerro-torre.git
 cd cerro-torre
@@ -54,11 +66,12 @@ alr build
 
 # Verify installation
 ./bin/cerro-torre --version
-```
+----
 
-### 2. Install Vörðr
+==== 2. Install Vörðr
 
-```bash
+[source,bash]
+----
 # Clone Vörðr
 git clone https://github.com/hyperpolymath/vordr.git
 cd vordr
@@ -69,11 +82,12 @@ alr build
 
 # Start Vörðr daemon
 ./target/release/vordr --daemon
-```
+----
 
-### 3. Install Svalinn
+==== 3. Install Svalinn
 
-```bash
+[source,bash]
+----
 # Clone Svalinn
 git clone https://github.com/hyperpolymath/svalinn.git
 cd svalinn
@@ -83,28 +97,28 @@ deno install --allow-all svalinn-compose
 
 # Verify installation
 svalinn-compose --version
-```
+----
 
-## Building php-aegis WordPress Container
+=== Building php-aegis WordPress Container
 
-### Step 1: Prepare Manifest
+==== Step 1: Prepare Manifest
 
 The Cerro Torre manifest is located at:
-```
+
+....
 php-aegis/manifests/php-aegis-wordpress.ctp
-```
+....
 
-Key sections:
-- **[package]**: Package metadata
-- **[dependencies]**: PHP 8.2, WordPress 6.4, php-aegis 0.2
-- **[build]**: Declarative build steps
-- **[runtime]**: Container runtime configuration
-- **[security]**: SELinux policy, capabilities, network isolation
-- **[attestations]**: SBOM, provenance, threshold signing
+Key sections: - *[package]*: Package metadata - *[dependencies]*: PHP
+8.2, WordPress 6.4, php-aegis 0.2 - *[build]*: Declarative build steps -
+*[runtime]*: Container runtime configuration - *[security]*: SELinux
+policy, capabilities, network isolation - *[attestations]*: SBOM,
+provenance, threshold signing
 
-### Step 2: Build with Cerro Torre
+==== Step 2: Build with Cerro Torre
 
-```bash
+[source,bash]
+----
 # Navigate to php-aegis repo
 cd /path/to/php-aegis
 
@@ -117,11 +131,12 @@ cerro-torre build manifests/php-aegis-wordpress.ctp
 # - SBOM in SPDX format
 # - in-toto attestation
 # - Threshold signatures (2-of-3 keyholders)
-```
+----
 
-### Step 3: Verify Build
+==== Step 3: Verify Build
 
-```bash
+[source,bash]
+----
 # Verify cryptographic signatures
 cerro-torre verify php-aegis-wordpress:0.2.0
 
@@ -130,13 +145,14 @@ cerro-torre sbom php-aegis-wordpress:0.2.0
 
 # Verify transparency log consensus
 cerro-torre check-transparency php-aegis-wordpress:0.2.0
-```
+----
 
-## Deploying with Vörðr
+=== Deploying with Vörðr
 
-### Single Container Deployment
+==== Single Container Deployment
 
-```bash
+[source,bash]
+----
 # Run php-aegis WordPress container
 vordr run \
   --name php-aegis-wp \
@@ -156,13 +172,14 @@ vordr ps
 
 # View logs
 vordr logs php-aegis-wp
-```
+----
 
-### Multi-Container Stack
+==== Multi-Container Stack
 
-Create `docker-compose.yml` (Svalinn-compatible):
+Create `+docker-compose.yml+` (Svalinn-compatible):
 
-```yaml
+[source,yaml]
+----
 # SPDX-License-Identifier: CC-BY-SA-4.0
 # php-aegis WordPress Stack (Svalinn/Vörðr)
 
@@ -238,11 +255,12 @@ networks:
   backend:
     internal: true
   frontend:
-```
+----
 
 Deploy with Svalinn:
 
-```bash
+[source,bash]
+----
 # Deploy stack
 svalinn-compose up -d
 
@@ -254,76 +272,70 @@ svalinn-compose logs -f wordpress
 
 # Stop stack
 svalinn-compose down
-```
+----
 
-## Security Features
+=== Security Features
 
-### 1. SELinux Enforcing
+==== 1. SELinux Enforcing
 
-php-aegis container runs with SELinux type `container_web_t`:
+php-aegis container runs with SELinux type `+container_web_t+`:
 
-```bash
+[source,bash]
+----
 # Verify SELinux context
 ps -eZ | grep php-fpm
 # Output: system_u:system_r:container_web_t:s0:c0,c1 ... php-fpm
-```
+----
 
-SELinux policy (auto-generated by Cerro Torre):
-- **Read-only WordPress files**: PHP can read but not write WordPress core
-- **Writable uploads**: PHP can write to uploads directory only
-- **Rate limit storage**: PHP can write rate limit data
-- **Network access**: PHP can connect to MySQL only
+SELinux policy (auto-generated by Cerro Torre): - *Read-only WordPress
+files*: PHP can read but not write WordPress core - *Writable uploads*:
+PHP can write to uploads directory only - *Rate limit storage*: PHP can
+write rate limit data - *Network access*: PHP can connect to MySQL only
 
-### 2. Capability Dropping
+==== 2. Capability Dropping
 
-Container drops all capabilities except:
-- `CHOWN` - Change file ownership (for wp-content)
-- `SETGID` - Set group ID (for www-data)
-- `SETUID` - Set user ID (for www-data)
-- `NET_BIND_SERVICE` - Bind to port 9000
+Container drops all capabilities except: - `+CHOWN+` - Change file
+ownership (for wp-content) - `+SETGID+` - Set group ID (for www-data) -
+`+SETUID+` - Set user ID (for www-data) - `+NET_BIND_SERVICE+` - Bind to
+port 9000
 
-### 3. Read-Only Root Filesystem
+==== 3. Read-Only Root Filesystem
 
-Root filesystem is read-only except:
-- `/var/www/html/wp-content/uploads` (user uploads)
-- `/var/www/html/wp-content/cache` (cache)
-- `/var/ratelimit` (rate limiting data)
-- `/tmp` (temporary files)
+Root filesystem is read-only except: -
+`+/var/www/html/wp-content/uploads+` (user uploads) -
+`+/var/www/html/wp-content/cache+` (cache) - `+/var/ratelimit+` (rate
+limiting data) - `+/tmp+` (temporary files)
 
-### 4. Network Isolation
+==== 4. Network Isolation
 
-**Egress (outbound)**:
-- WordPress API (api.wordpress.org:443)
-- Composer/Packagist (packagist.org:443)
-- IndieWeb endpoints (*.indieweb.org:443)
+*Egress (outbound)*: - WordPress API (api.wordpress.org:443) -
+Composer/Packagist (packagist.org:443) - IndieWeb endpoints
+(*.indieweb.org:443)
 
-**Ingress (inbound)**:
-- Port 9000 (PHP-FPM) from nginx container only
+*Ingress (inbound)*: - Port 9000 (PHP-FPM) from nginx container only
 
-### 5. Threshold Signing
+==== 5. Threshold Signing
 
-Container requires 2-of-3 signatures:
-- maintainer-1
-- maintainer-2
-- release-bot
+Container requires 2-of-3 signatures: - maintainer-1 - maintainer-2 -
+release-bot
 
 No single party can sign releases alone.
 
-### 6. Transparency Logs
+==== 6. Transparency Logs
 
-Build attestations logged to:
-- Cerro Torre transparency log
-- Sigstore Rekor
+Build attestations logged to: - Cerro Torre transparency log - Sigstore
+Rekor
 
 Deployment requires consensus from 2-of-2 logs.
 
-## Integration with Svalinn Gateway
+=== Integration with Svalinn Gateway
 
-### REST API Access
+==== REST API Access
 
 Svalinn provides REST API for container operations:
 
-```bash
+[source,bash]
+----
 # Start Svalinn gateway
 svalinn serve --port 8080 --vordr-socket /var/run/vordr.sock
 
@@ -351,13 +363,14 @@ curl http://localhost:8080/v1/containers \
 # Get container logs
 curl http://localhost:8080/v1/containers/php-aegis-wp/logs \
   -H "Authorization: Bearer $TOKEN"
-```
+----
 
-### Policy Enforcement
+==== Policy Enforcement
 
 Svalinn enforces policies before delegating to Vörðr:
 
-```yaml
+[source,yaml]
+----
 # /etc/svalinn/policy.yaml
 policies:
   - operation: "container.create"
@@ -378,13 +391,14 @@ policies:
       - type: "rate-limit"
         requests: 10
         window: "1m"
-```
+----
 
-### Authentication
+==== Authentication
 
 Svalinn supports OAuth2/OIDC + JWT:
 
-```bash
+[source,bash]
+----
 # Configure OAuth2 provider
 export SVALINN_OAUTH_ISSUER="https://auth.example.com"
 export SVALINN_OAUTH_AUDIENCE="svalinn-api"
@@ -392,13 +406,14 @@ export SVALINN_OAUTH_JWKS_URL="https://auth.example.com/.well-known/jwks.json"
 
 # Start with authentication
 svalinn serve --auth oauth2
-```
+----
 
-## Verification Process
+=== Verification Process
 
-### 1. Build Verification
+==== 1. Build Verification
 
-```bash
+[source,bash]
+----
 # Verify before deployment
 cerro-torre verify php-aegis-wordpress:0.2.0
 
@@ -409,11 +424,12 @@ cerro-torre verify php-aegis-wordpress:0.2.0
 # ✓ No high/critical vulnerabilities
 # ✓ All dependencies have provenance
 # ✓ Build reproducible
-```
+----
 
-### 2. Runtime Verification
+==== 2. Runtime Verification
 
-```bash
+[source,bash]
+----
 # Vörðr verifies before running
 vordr run php-aegis-wordpress:0.2.0
 
@@ -424,11 +440,12 @@ vordr run php-aegis-wordpress:0.2.0
 # ✓ SELinux policy loaded
 # ✓ Capabilities set correctly
 # ✓ Network isolation active
-```
+----
 
-### 3. Continuous Verification
+==== 3. Continuous Verification
 
-```bash
+[source,bash]
+----
 # Monitor running container
 vordr check php-aegis-wp
 
@@ -438,28 +455,32 @@ vordr check php-aegis-wp
 # ✓ Network connections allowed
 # ✓ Capabilities not escalated
 # ✓ SELinux violations (none)
-```
+----
 
-## Performance
+=== Performance
 
-### Cerro Torre vs Docker
+==== Cerro Torre vs Docker
 
-| Metric | Cerro Torre + Vörðr | Docker |
-|--------|---------------------|--------|
-| Build time | ~5-10 min (first build) | ~3-5 min |
-| Build time (cached) | ~30 sec | ~30 sec |
-| Container start | ~200ms | ~100ms |
-| Memory overhead | ~50MB | ~20MB |
-| Verification overhead | ~500ms | N/A |
-| Storage per container | ~150MB | ~120MB |
+[cols=",,",options="header",]
+|===
+|Metric |Cerro Torre + Vörðr |Docker
+|Build time |~5-10 min (first build) |~3-5 min
+|Build time (cached) |~30 sec |~30 sec
+|Container start |~200ms |~100ms
+|Memory overhead |~50MB |~20MB
+|Verification overhead |~500ms |N/A
+|Storage per container |~150MB |~120MB
+|===
 
-**Trade-off**: Slightly slower for significantly higher security guarantees.
+*Trade-off*: Slightly slower for significantly higher security
+guarantees.
 
-## Troubleshooting
+=== Troubleshooting
 
-### Build Failures
+==== Build Failures
 
-```bash
+[source,bash]
+----
 # Check Cerro Torre logs
 cerro-torre build --verbose manifests/php-aegis-wordpress.ctp
 
@@ -467,11 +488,12 @@ cerro-torre build --verbose manifests/php-aegis-wordpress.ctp
 # - Missing dependencies: Install with alr
 # - Network errors: Check firewall rules
 # - Signature errors: Verify keyholders available
-```
+----
 
-### Runtime Errors
+==== Runtime Errors
 
-```bash
+[source,bash]
+----
 # Check Vörðr logs
 vordr logs php-aegis-wp --tail 100
 
@@ -479,11 +501,12 @@ vordr logs php-aegis-wp --tail 100
 # - SELinux denials: Check with ausearch -m avc
 # - Permission errors: Verify volume ownership
 # - Network errors: Check network policy
-```
+----
 
-### Svalinn Gateway Issues
+==== Svalinn Gateway Issues
 
-```bash
+[source,bash]
+----
 # Check Svalinn logs
 journalctl -u svalinn -f
 
@@ -491,22 +514,26 @@ journalctl -u svalinn -f
 # - Authentication: Verify OAuth2 configuration
 # - Policy denials: Check /etc/svalinn/policy.yaml
 # - Vörðr connection: Verify socket path
-```
+----
 
-## Migration from Docker
+=== Migration from Docker
 
-### 1. Convert Dockerfile to .ctp
+==== 1. Convert Dockerfile to .ctp
 
 Docker:
-```dockerfile
+
+[source,dockerfile]
+----
 FROM php:8.2-fpm
 RUN apt-get update && apt-get install -y wordpress
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 RUN composer require hyperpolymath/php-aegis
-```
+----
 
 Cerro Torre (.ctp):
-```toml
+
+[source,toml]
+----
 [base]
 image = "cerro-torre/debian:bookworm-slim"
 
@@ -517,18 +544,19 @@ packages = ["php8.2-fpm", "wordpress", "composer"]
 steps = [
     { action = "composer-require", package = "hyperpolymath/php-aegis" }
 ]
-```
+----
 
-### 2. Convert docker-compose.yml
+==== 2. Convert docker-compose.yml
 
-Docker Compose files work with Svalinn with minimal changes:
-- `docker-compose up` → `svalinn-compose up`
-- `docker-compose ps` → `svalinn-compose ps`
-- `docker-compose logs` → `svalinn-compose logs`
+Docker Compose files work with Svalinn with minimal changes: -
+`+docker-compose up+` → `+svalinn-compose up+` - `+docker-compose ps+` →
+`+svalinn-compose ps+` - `+docker-compose logs+` →
+`+svalinn-compose logs+`
 
-### 3. Migrate Volumes
+==== 3. Migrate Volumes
 
-```bash
+[source,bash]
+----
 # Export Docker volume
 docker run --rm -v wp_content:/source -v $(pwd):/backup \
   alpine tar czf /backup/wp_content.tar.gz -C /source .
@@ -537,19 +565,23 @@ docker run --rm -v wp_content:/source -v $(pwd):/backup \
 vordr volume create wp_content
 vordr run --rm -v wp_content:/target -v $(pwd):/backup \
   cerro-torre/alpine tar xzf /backup/wp_content.tar.gz -C /target
-```
+----
 
-## Next Steps
+=== Next Steps
 
-1. **Read Cerro Torre docs**: https://github.com/hyperpolymath/cerro-torre
-2. **Read Vörðr docs**: https://github.com/hyperpolymath/vordr
-3. **Read Svalinn docs**: https://github.com/hyperpolymath/svalinn
-4. **Join community**: https://github.com/hyperpolymath/verified-container-spec
+[arabic]
+. *Read Cerro Torre docs*: https://github.com/hyperpolymath/cerro-torre
+. *Read Vörðr docs*: https://github.com/hyperpolymath/vordr
+. *Read Svalinn docs*: https://github.com/hyperpolymath/svalinn
+. *Join community*:
+https://github.com/hyperpolymath/verified-container-spec
 
-## References
+=== References
 
-- [Verified Container Spec](https://github.com/hyperpolymath/verified-container-spec)
-- [Cerro Torre Manifest Format](https://github.com/hyperpolymath/cerro-torre/blob/main/spec/manifest-format.md)
-- [in-toto Attestation](https://in-toto.io/)
-- [SLSA Provenance](https://slsa.dev/provenance/)
-- [SPDX SBOM](https://spdx.dev/)
+* https://github.com/hyperpolymath/verified-container-spec[Verified
+Container Spec]
+* https://github.com/hyperpolymath/cerro-torre/blob/main/spec/manifest-format.md[Cerro
+Torre Manifest Format]
+* https://in-toto.io/[in-toto Attestation]
+* https://slsa.dev/provenance/[SLSA Provenance]
+* https://spdx.dev/[SPDX SBOM]
