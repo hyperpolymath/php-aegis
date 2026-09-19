@@ -372,7 +372,7 @@ MIT License - See link:LICENSE.txt[LICENSE.txt] for details.
 
 == Contributing
 
-Contributions welcome! Please read link:CONTRIBUTING.adoc[CONTRIBUTING.adoc] first.
+Contributions welcome! Please read link:.github/CONTRIBUTING.md[.github/CONTRIBUTING.md] first.
 
 For security vulnerabilities, see link:SECURITY.adoc[SECURITY.adoc].
 
