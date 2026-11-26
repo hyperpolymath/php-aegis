@@ -1,0 +1,7 @@
+{
+  "name": "php-aegis",
+  "private": true,
+  "devDependencies": {
+    "prettier": "3.10.1"
+  }
+}
